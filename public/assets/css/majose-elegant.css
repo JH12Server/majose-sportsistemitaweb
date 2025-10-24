@@ -1,0 +1,778 @@
+/* MajoseSport - Sistema de colores elegante */
+:root {
+    /* Colores principales */
+    --majose-red: #E53935;
+    --majose-red-dark: #C62828;
+    --majose-red-light: #FF5252;
+    --majose-black: #1A1A1A;
+    --majose-gray: #424242;
+    --majose-light-gray: #F5F5F5;
+    --majose-white: #FFFFFF;
+    
+    /* Gradientes */
+    --gradient-primary: linear-gradient(135deg, var(--majose-red) 0%, var(--majose-red-dark) 100%);
+    --gradient-dark: linear-gradient(135deg, var(--majose-black) 0%, var(--majose-gray) 100%);
+    --gradient-light: linear-gradient(135deg, var(--majose-white) 0%, var(--majose-light-gray) 100%);
+    
+    /* Sombras elegantes */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.2);
+    
+    /* Transiciones suaves */
+    --transition-fast: all 0.2s ease-in-out;
+    --transition-normal: all 0.3s ease-in-out;
+    --transition-slow: all 0.5s ease-in-out;
+}
+
+/* Reset y base */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--majose-light-gray);
+    color: var(--majose-black);
+    line-height: 1.6;
+}
+
+/* Componentes elegantes */
+.majose-card {
+    background: var(--majose-white);
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition-normal);
+    border: 1px solid rgba(229, 57, 53, 0.1);
+    overflow: hidden;
+}
+
+.majose-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--majose-red);
+}
+
+.majose-card-red {
+    background: var(--gradient-primary);
+    color: var(--majose-white);
+    border: none;
+}
+
+.majose-card-black {
+    background: var(--gradient-dark);
+    color: var(--majose-white);
+    border: none;
+}
+
+.majose-card-white {
+    background: var(--majose-white);
+    color: var(--majose-black);
+    border-left: 4px solid var(--majose-red);
+}
+
+/* Botones elegantes */
+.majose-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition-normal);
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.majose-btn-primary {
+    background: var(--gradient-primary);
+    color: var(--majose-white);
+    box-shadow: var(--shadow-sm);
+}
+
+.majose-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    color: var(--majose-white);
+}
+
+.majose-btn-secondary {
+    background: var(--majose-white);
+    color: var(--majose-red);
+    border: 2px solid var(--majose-red);
+}
+
+.majose-btn-secondary:hover {
+    background: var(--majose-red);
+    color: var(--majose-white);
+    transform: translateY(-2px);
+}
+
+.majose-btn-dark {
+    background: var(--gradient-dark);
+    color: var(--majose-white);
+}
+
+.majose-btn-dark:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    color: var(--majose-white);
+}
+
+/* Iconos con animación */
+.majose-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-normal);
+}
+
+.majose-icon-red {
+    background: rgba(229, 57, 53, 0.1);
+    color: var(--majose-red);
+}
+
+.majose-icon-white {
+    background: var(--majose-white);
+    color: var(--majose-red);
+    box-shadow: var(--shadow-sm);
+}
+
+.majose-icon-black {
+    background: var(--majose-black);
+    color: var(--majose-white);
+}
+
+/* Panel de bienvenida elegante */
+.majose-welcome-panel {
+    background: var(--gradient-primary);
+    border-radius: 24px;
+    padding: 48px;
+    text-align: center;
+    color: var(--majose-white);
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+}
+
+.majose-welcome-panel::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+.majose-welcome-logo {
+    width: 80px;
+    height: 80px;
+    background: #FFFFFF !important;
+    border-radius: 20px;
+    padding: 16px;
+    margin: 0 auto 24px;
+    box-shadow: var(--shadow-lg);
+    animation: pulse 2s ease-in-out infinite;
+    border: 2px solid #FFFFFF;
+    position: relative;
+    overflow: hidden;
+}
+
+.majose-welcome-logo img {
+    filter: brightness(1.2) contrast(1.1);
+    mix-blend-mode: multiply;
+    background: transparent;
+}
+
+/* Forzar fondo blanco en todos los casos */
+.majose-welcome-logo::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #FFFFFF;
+    border-radius: 20px;
+    z-index: -1;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Estadísticas elegantes */
+.majose-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin: 32px 0;
+    align-items: stretch;
+}
+
+/* Responsive para el grid de estadísticas */
+@media (max-width: 1200px) {
+    .majose-stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .majose-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .majose-stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.majose-stat-card {
+    background: var(--majose-white);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition-normal);
+    border: 1px solid rgba(229, 57, 53, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.majose-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-primary);
+}
+
+.majose-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--majose-red);
+}
+
+.majose-stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--majose-black);
+    margin: 8px 0;
+    line-height: 1;
+}
+
+.majose-stat-label {
+    font-size: 0.875rem;
+    color: var(--majose-gray);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Animaciones de entrada */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.majose-animate-in {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.majose-animate-delay-1 { animation-delay: 0.1s; }
+.majose-animate-delay-2 { animation-delay: 0.2s; }
+.majose-animate-delay-3 { animation-delay: 0.3s; }
+.majose-animate-delay-4 { animation-delay: 0.4s; }
+
+/* Efectos de hover dinámicos */
+.majose-hover-lift {
+    transition: var(--transition-normal);
+}
+
+.majose-hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Gradientes de texto */
+.majose-text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+}
+
+/* Barras de progreso elegantes */
+.majose-progress {
+    height: 8px;
+    background: rgba(229, 57, 53, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.majose-progress-bar {
+    height: 100%;
+    background: var(--gradient-primary);
+    border-radius: 4px;
+    transition: width 0.8s ease-in-out;
+}
+
+/* Responsive design mejorado */
+@media (max-width: 768px) {
+    .majose-welcome-panel {
+        padding: 32px 24px;
+        border-radius: 16px;
+        margin: 16px 0;
+    }
+    
+    .majose-welcome-panel h1 {
+        font-size: 2rem !important;
+    }
+    
+    .majose-welcome-panel p {
+        font-size: 1rem !important;
+    }
+    
+    .majose-stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px;
+        margin: 24px 0;
+    }
+    
+    .majose-stat-card {
+        padding: 20px;
+    }
+    
+    .majose-stat-number {
+        font-size: 2rem;
+    }
+    
+    .majose-icon {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    .majose-btn {
+        padding: 10px 20px;
+        font-size: 13px;
+    }
+    
+    /* Header móvil */
+    .header-mobile {
+        padding: 12px 16px;
+    }
+    
+    .header-mobile .majose-icon {
+        width: 36px !important;
+        height: 36px !important;
+    }
+    
+    /* Navegación móvil */
+    .nav-mobile {
+        padding: 8px 16px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .nav-mobile .majose-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+    
+    /* Grid responsivo */
+    .grid-mobile {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    /* Cards móviles */
+    .majose-card {
+        margin-bottom: 16px;
+    }
+    
+    /* Footer móvil */
+    .footer-mobile {
+        padding: 24px 16px;
+        text-align: center;
+    }
+    
+    .footer-mobile .grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .majose-welcome-panel {
+        padding: 24px 16px;
+        margin: 12px 0;
+    }
+    
+    .majose-welcome-panel h1 {
+        font-size: 1.75rem !important;
+    }
+    
+    .majose-stats-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+        margin: 20px 0;
+    }
+    
+    .majose-stat-card {
+        padding: 16px;
+    }
+    
+    .majose-stat-number {
+        font-size: 1.75rem;
+    }
+    
+    .majose-icon {
+        width: 36px !important;
+        height: 36px !important;
+    }
+    
+    .majose-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+    .majose-animate-in,
+    .majose-hover-lift:hover,
+    .majose-card:hover,
+    .majose-icon,
+    .majose-btn {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+    }
+}
+
+/* Modo oscuro (opcional) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --majose-light-gray: #2A2A2A;
+        --majose-white: #1A1A1A;
+        --majose-black: #FFFFFF;
+        --majose-gray: #CCCCCC;
+    }
+    
+    body {
+        background-color: var(--majose-light-gray);
+        color: var(--majose-black);
+    }
+    
+    .majose-card-white {
+        background: var(--majose-white);
+        color: var(--majose-black);
+    }
+}
+
+/* Optimizaciones de rendimiento */
+.majose-card,
+.majose-btn,
+.majose-icon {
+    will-change: transform;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
+/* Mejoras de tipografía */
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        line-height: 1.3;
+    }
+}
+
+/* Optimizaciones de scroll */
+.majose-smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Mejoras de contraste para accesibilidad */
+.majose-text-red {
+    color: #D32F2F !important; /* Rojo más oscuro para mejor contraste */
+}
+
+.majose-text-black {
+    color: #000000 !important;
+}
+
+.majose-text-white {
+    color: #FFFFFF !important;
+}
+
+/* Estados de focus mejorados */
+.majose-btn:focus,
+.majose-card:focus {
+    outline: 2px solid var(--majose-red);
+    outline-offset: 2px;
+}
+
+/* Mejoras de carga */
+.majose-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.majose-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid var(--majose-red);
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--majose-light-gray);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--majose-red);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--majose-red-dark);
+}
+
+/* Utilidades */
+.majose-text-red { color: var(--majose-red) !important; }
+.majose-text-black { color: var(--majose-black) !important; }
+.majose-text-white { color: var(--majose-white) !important; }
+.majose-bg-red { background-color: var(--majose-red) !important; }
+.majose-bg-black { background-color: var(--majose-black) !important; }
+.majose-bg-white { background-color: var(--majose-white) !important; }
+.majose-border-red { border-color: var(--majose-red) !important; }
+
+/* Forzar fondo blanco en el logo */
+.majose-welcome-logo,
+.majose-welcome-logo *,
+.majose-welcome-logo::before,
+.majose-welcome-logo::after {
+    background-color: #FFFFFF !important;
+    background: #FFFFFF !important;
+}
+
+/* Estilos para categorías */
+.majose-category-btn {
+    background: #FFFFFF;
+    border: 2px solid #E53935;
+    color: #E53935;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.majose-category-btn:hover {
+    background: #E53935;
+    color: #FFFFFF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(229, 57, 53, 0.3);
+}
+
+/* Estilos para botones de acción rápida */
+.majose-quick-action-btn {
+    background: #000000;
+    border: 2px solid #E53935;
+    color: #FFFFFF;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    min-height: 80px;
+    display: block;
+    text-decoration: none;
+}
+
+.majose-quick-action-btn:hover {
+    background: #E53935;
+    color: #000000;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(229, 57, 53, 0.4);
+    text-decoration: none;
+}
+
+.majose-quick-action-btn h3 {
+    color: inherit;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.majose-quick-action-btn p {
+    color: inherit;
+    opacity: 0.8;
+    font-size: 0.9rem;
+}
+
+/* Scrollbar personalizado para categorías */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* Barra de categorías fija */
+.majose-category-btn {
+    background: #FFFFFF;
+    border: 2px solid #E53935;
+    color: #E53935;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.majose-category-btn:hover {
+    background: #E53935;
+    color: #FFFFFF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(229, 57, 53, 0.3);
+    text-decoration: none;
+}
+
+/* Responsive design mejorado */
+@media (max-width: 768px) {
+    .majose-stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px;
+        margin: 24px 0;
+    }
+    
+    .majose-welcome-panel {
+        padding: 24px 16px;
+    }
+    
+    .majose-welcome-logo {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .majose-welcome-panel h1 {
+        font-size: 1.8rem;
+    }
+    
+    .majose-welcome-panel p {
+        font-size: 1rem;
+    }
+    
+    /* Categorías en móvil */
+    .majose-category-btn {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+    
+    /* Acciones rápidas en móvil */
+    .majose-quick-action-btn {
+        padding: 12px !important;
+    }
+    
+    .majose-quick-action-btn h3 {
+        font-size: 14px;
+    }
+    
+    .majose-quick-action-btn p {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .majose-stats-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+        margin: 20px 0;
+    }
+    
+    .majose-welcome-panel {
+        padding: 20px 12px;
+    }
+    
+    .majose-welcome-logo {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .majose-welcome-panel h1 {
+        font-size: 1.5rem;
+    }
+    
+    /* Categorías en móvil pequeño */
+    .majose-category-btn {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+}
+
+/* Animaciones suaves para todos los elementos */
+* {
+    transition: all 0.3s ease;
+}
+
+/* Mejoras en tipografía */
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 700;
+}
+
+/* Sombras suaves para secciones */
+.majose-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.majose-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}

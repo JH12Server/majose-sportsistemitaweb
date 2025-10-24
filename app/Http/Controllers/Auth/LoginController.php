@@ -32,6 +32,27 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
+
+            $user = Auth::user();
+
+            // Redirigir según el rol específico
+            if ($user->isCustomer()) {
+                return redirect()->intended(route('customer.dashboard'));
+            }
+
+            if ($user->isAdmin()) {
+                return redirect()->intended(route('dashboard'));
+            }
+
+            if ($user->isSupervisor()) {
+                return redirect()->intended(route('dashboard'));
+            }
+
+            if ($user->isWorker()) {
+                return redirect()->intended(route('worker.dashboard'));
+            }
+
+            // Fallback genérico
             return redirect()->intended('/dashboard');
         }
 

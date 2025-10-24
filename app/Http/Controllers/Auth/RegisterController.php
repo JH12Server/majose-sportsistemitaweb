@@ -33,11 +33,11 @@ class RegisterController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            // 'role' => 'admin', // Descomenta si quieres registrar solo admins aquí
+            'role' => 'customer',
         ]);
 
         Auth::login($user);
 
-        return redirect('/dashboard');
+        return redirect()->route('customer.dashboard');
     }
 } 

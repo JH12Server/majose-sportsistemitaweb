@@ -22,6 +22,10 @@ class User extends Authenticatable
         'password',
         'role',
         'foto',
+        'phone',
+        'address',
+        'is_active',
+        'permissions',
     ];
 
     /**
@@ -44,6 +48,53 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
+            'permissions' => 'array',
         ];
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function assignedOrders()
+    {
+        return $this->hasMany(Order::class, 'assigned_worker_id');
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function isCustomer(): bool
+    {
+        return $this->role === 'customer';
+    }
+
+    public function isWorker(): bool
+    {
+        return in_array($this->role, ['admin', 'designer', 'embroiderer', 'delivery_manager', 'supervisor']);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isSupervisor(): bool
+    {
+        return $this->role === 'supervisor';
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        $permissions = $this->permissions ?? [];
+        return in_array($permission, $permissions);
     }
 }

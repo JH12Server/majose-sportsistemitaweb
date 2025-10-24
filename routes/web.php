@@ -27,7 +27,7 @@ Route::post('register', [RegisterController::class, 'register']);
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         return view('layouts.dashboard');
-    })->name('dashboard');
+    })->middleware('admin')->name('dashboard');
 
     Route::get('/productos', function () {
         return view('layouts.productos');
@@ -75,20 +75,54 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
-// Redirigir '/' al login si no está autenticado
+// Redirigir '/' según el rol del usuario
 Route::get('/', function () {
     if (!Auth::check()) {
         return redirect()->route('login');
     }
-    return redirect()->route('catalogo');
+    
+    $user = Auth::user();
+    if ($user->isCustomer()) {
+        return redirect()->route('customer.dashboard');
+    } elseif ($user->isWorker()) {
+        return redirect()->route('worker.dashboard');
+    }
+    
+    return redirect()->route('login');
 });
 
 // Rutas protegidas por autenticación
 Route::middleware('auth')->group(function () {
+    // Rutas para clientes
+    Route::middleware('customer')->group(function () {
+        Route::get('/customer/dashboard', App\Livewire\CustomerDashboard::class)->name('customer.dashboard');
+        Route::get('/customer/catalog', App\Livewire\CustomerCatalog::class)->name('customer.catalog');
+        Route::get('/customer/cart', App\Livewire\CustomerCart::class)->name('customer.cart');
+        Route::get('/customer/orders', App\Livewire\CustomerOrders::class)->name('customer.orders');
+        Route::get('/customer/checkout', Checkout::class)->name('customer.checkout');
+    });
+
+    // Rutas para trabajadores
+    Route::middleware('worker')->group(function () {
+        Route::get('/worker/dashboard', App\Livewire\WorkerDashboard::class)->name('worker.dashboard');
+        Route::get('/worker/orders', App\Livewire\WorkerOrders::class)->name('worker.orders');
+        Route::get('/worker/orders/{order}', function($order) {
+            return view('worker.order-detail', compact('order'));
+        })->name('worker.orders.show');
+        Route::get('/worker/products', function() {
+            return view('worker.products');
+        })->name('worker.products');
+        Route::get('/worker/users', function() {
+            return view('worker.users');
+        })->name('worker.users');
+    });
+
+    // Rutas legacy (mantener compatibilidad)
     Route::get('/catalogo', CatalogoProductos::class)->name('catalogo');
     Route::get('/carrito', Carrito::class)->name('carrito');
     Route::get('/checkout', Checkout::class)->name('checkout');
     Route::get('/historial', HistorialCompras::class)->name('historial');
+    
     // Rutas solo para administradores
     Route::middleware('admin')->group(function () {
         Route::get('/admin/ventas', AdminVentas::class)->name('admin.ventas');
