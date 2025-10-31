@@ -15,6 +15,7 @@ class Product extends Model
         'description',
         'base_price',
         'category',
+        'brand',
         'material',
         'available_sizes',
         'available_colors',
@@ -22,6 +23,7 @@ class Product extends Model
         'allows_customization',
         'production_days',
         'is_active',
+        'featured',
     ];
 
     protected $casts = [
@@ -31,6 +33,7 @@ class Product extends Model
         'images' => 'array',
         'allows_customization' => 'boolean',
         'is_active' => 'boolean',
+        'featured' => 'boolean',
     ];
 
     public function orderItems(): HasMany

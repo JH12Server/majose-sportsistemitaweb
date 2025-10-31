@@ -11,35 +11,38 @@ class CustomerCatalog extends Component
     use WithPagination;
 
     public $search = '';
-    public $category = '';
-    public $material = '';
+    public $selectedCategory = '';
     public $minPrice = '';
     public $maxPrice = '';
+    public $selectedBrand = '';
     public $sortBy = 'name';
     public $sortDirection = 'asc';
+    public $viewMode = 'grid'; // grid o list
     public $showFilters = false;
+    public $selectedProduct = null;
+    public $showProductModal = false;
 
     protected $queryString = [
         'search' => ['except' => ''],
-        'category' => ['except' => ''],
-        'material' => ['except' => ''],
+        'selectedCategory' => ['except' => ''],
         'minPrice' => ['except' => ''],
         'maxPrice' => ['except' => ''],
+        'selectedBrand' => ['except' => ''],
         'sortBy' => ['except' => 'name'],
         'sortDirection' => ['except' => 'asc'],
     ];
+
+    public function mount()
+    {
+        // Inicializar valores por defecto
+    }
 
     public function updatedSearch()
     {
         $this->resetPage();
     }
 
-    public function updatedCategory()
-    {
-        $this->resetPage();
-    }
-
-    public function updatedMaterial()
+    public function updatedSelectedCategory()
     {
         $this->resetPage();
     }
@@ -50,6 +53,11 @@ class CustomerCatalog extends Component
     }
 
     public function updatedMaxPrice()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSelectedBrand()
     {
         $this->resetPage();
     }
@@ -65,21 +73,78 @@ class CustomerCatalog extends Component
         $this->resetPage();
     }
 
-    public function clearFilters()
+    public function toggleViewMode()
     {
-        $this->search = '';
-        $this->category = '';
-        $this->material = '';
-        $this->minPrice = '';
-        $this->maxPrice = '';
-        $this->sortBy = 'name';
-        $this->sortDirection = 'asc';
-        $this->resetPage();
+        $this->viewMode = $this->viewMode === 'grid' ? 'list' : 'grid';
     }
 
     public function toggleFilters()
     {
         $this->showFilters = !$this->showFilters;
+    }
+
+    public function clearFilters()
+    {
+        $this->search = '';
+        $this->selectedCategory = '';
+        $this->minPrice = '';
+        $this->maxPrice = '';
+        $this->selectedBrand = '';
+        $this->sortBy = 'name';
+        $this->sortDirection = 'asc';
+        $this->resetPage();
+    }
+
+    public function showProductDetail($productId)
+    {
+        $this->selectedProduct = Product::find($productId);
+        $this->showProductModal = true;
+    }
+
+    public function closeProductModal()
+    {
+        $this->showProductModal = false;
+        $this->selectedProduct = null;
+    }
+
+    public function addToCart($productId)
+    {
+        $this->dispatch('addToCart', $productId);
+        $this->dispatch('show-success', 'Producto agregado al carrito');
+    }
+
+    public function getCategoriesProperty()
+    {
+        return Product::where('is_active', true)
+            ->select('category')
+            ->distinct()
+            ->pluck('category')
+            ->filter()
+            ->values()
+            ->toArray();
+    }
+
+    public function getBrandsProperty()
+    {
+        return Product::where('is_active', true)
+            ->select('brand')
+            ->distinct()
+            ->pluck('brand')
+            ->filter()
+            ->values()
+            ->toArray();
+    }
+
+    public function getPriceRangeProperty()
+    {
+        $prices = Product::where('is_active', true)
+            ->selectRaw('MIN(base_price) as min_price, MAX(base_price) as max_price')
+            ->first();
+        
+        return [
+            'min' => $prices->min_price ?? 0,
+            'max' => $prices->max_price ?? 1000,
+        ];
     }
 
     public function render()
@@ -88,18 +153,19 @@ class CustomerCatalog extends Component
 
         // Aplicar filtros
         if ($this->search) {
-            $query->where(function ($q) {
+            $query->where(function($q) {
                 $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('description', 'like', '%' . $this->search . '%');
+                  ->orWhere('description', 'like', '%' . $this->search . '%')
+                  ->orWhere('category', 'like', '%' . $this->search . '%');
             });
         }
 
-        if ($this->category) {
-            $query->where('category', $this->category);
+        if ($this->selectedCategory) {
+            $query->where('category', $this->selectedCategory);
         }
 
-        if ($this->material) {
-            $query->where('material', 'like', '%' . $this->material . '%');
+        if ($this->selectedBrand) {
+            $query->where('brand', $this->selectedBrand);
         }
 
         if ($this->minPrice) {
@@ -115,30 +181,11 @@ class CustomerCatalog extends Component
 
         $products = $query->paginate(12);
 
-        // Obtener opciones para filtros
-        $categories = Product::where('is_active', true)
-            ->distinct()
-            ->pluck('category')
-            ->filter()
-            ->sort()
-            ->values();
-
-        $materials = Product::where('is_active', true)
-            ->distinct()
-            ->pluck('material')
-            ->filter()
-            ->sort()
-            ->values();
-
-        $priceRange = Product::where('is_active', true)
-            ->selectRaw('MIN(base_price) as min_price, MAX(base_price) as max_price')
-            ->first();
-
         return view('livewire.customer-catalog', [
             'products' => $products,
-            'categories' => $categories,
-            'materials' => $materials,
-            'priceRange' => $priceRange,
+            'categories' => $this->categories,
+            'brands' => $this->brands,
+            'priceRange' => $this->priceRange,
         ]);
     }
 }

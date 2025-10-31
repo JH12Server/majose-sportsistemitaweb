@@ -15,11 +15,15 @@ class Order extends Model
         'user_id',
         'order_number',
         'status',
+        'status_updated_by',
+        'status_updated_at',
+        'status_notes',
         'total_amount',
         'customer_notes',
         'internal_notes',
         'estimated_delivery',
         'actual_delivery',
+        'delivered_at',
         'assigned_worker_id',
         'priority',
     ];
@@ -27,6 +31,8 @@ class Order extends Model
     protected $casts = [
         'estimated_delivery' => 'date',
         'actual_delivery' => 'date',
+        'status_updated_at' => 'datetime',
+        'delivered_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

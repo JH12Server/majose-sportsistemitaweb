@@ -30,19 +30,29 @@ class CustomerCart extends Component
 
     public function addToCart($productId)
     {
-        $product = Product::find($productId);
-        
-        if (!$product) {
-            $this->dispatch('show-error', 'Producto no encontrado');
-            return;
-        }
+        try {
+            $product = Product::find($productId);
+            
+            if (!$product) {
+                $this->dispatch('show-error', 'Producto no encontrado');
+                return;
+            }
 
-        if ($product->allows_customization) {
-            $this->selectedProduct = $product;
-            $this->resetCustomization();
-            $this->showCustomizationModal = true;
-        } else {
-            $this->addProductToCart($product);
+            if (!$product->is_active) {
+                $this->dispatch('show-error', 'Este producto no está disponible actualmente');
+                return;
+            }
+
+            if ($product->allows_customization) {
+                $this->selectedProduct = $product;
+                $this->resetCustomization();
+                $this->showCustomizationModal = true;
+            } else {
+                $this->addProductToCart($product);
+            }
+        } catch (\Exception $e) {
+            $this->dispatch('show-error', 'Error al agregar el producto al carrito');
+            \Log::error('Error adding to cart: ' . $e->getMessage());
         }
     }
 
@@ -109,14 +119,30 @@ class CustomerCart extends Component
 
     public function updateQuantity($cartKey, $quantity)
     {
-        if ($quantity <= 0) {
-            $this->removeFromCart($cartKey);
-            return;
-        }
+        try {
+            if (!isset($this->cart[$cartKey])) {
+                $this->dispatch('show-error', 'Producto no encontrado en el carrito');
+                return;
+            }
 
-        $this->cart[$cartKey]['quantity'] = $quantity;
-        Session::put('cart', $this->cart);
-        $this->dispatch('cart-updated');
+            if ($quantity <= 0) {
+                $this->removeFromCart($cartKey);
+                return;
+            }
+
+            // Validar cantidad máxima (ejemplo: máximo 10 por producto)
+            if ($quantity > 10) {
+                $this->dispatch('show-error', 'La cantidad máxima por producto es 10');
+                return;
+            }
+
+            $this->cart[$cartKey]['quantity'] = $quantity;
+            Session::put('cart', $this->cart);
+            $this->dispatch('cart-updated');
+        } catch (\Exception $e) {
+            $this->dispatch('show-error', 'Error al actualizar la cantidad');
+            \Log::error('Error updating quantity: ' . $e->getMessage());
+        }
     }
 
     public function removeFromCart($cartKey)

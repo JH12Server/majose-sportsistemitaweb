@@ -16,9 +16,21 @@ class CustomerDashboard extends Component
 
     public function mount()
     {
-        $this->loadStats();
-        $this->loadRecentOrders();
-        $this->loadCatalogData();
+        if (auth()->check()) {
+            $this->loadStats();
+            $this->loadRecentOrders();
+            $this->loadCatalogData();
+        }
+    }
+
+    public function loadCatalogData()
+    {
+        $this->featuredProducts = Product::where('featured', true)
+            ->take(8)
+            ->get();
+            
+        $this->categories = \App\Models\Category::orderBy('nombre')
+            ->get();
     }
 
     public function loadStats()
@@ -53,21 +65,13 @@ class CustomerDashboard extends Component
         ]);
     }
 
-    private function loadCatalogData(): void
+    public function showProductDetail($productId)
     {
-        // Productos activos, priorizando los personalizables y más recientes
-        $this->featuredProducts = Product::where('is_active', true)
-            ->orderByDesc('allows_customization')
-            ->orderByDesc('id')
-            ->limit(12)
-            ->get();
+        $this->dispatch('show-product-detail', $productId);
+    }
 
-        $this->categories = Product::where('is_active', true)
-            ->select('category')
-            ->distinct()
-            ->pluck('category')
-            ->filter()
-            ->values()
-            ->toArray();
+    public function addToCart($productId)
+    {
+        $this->dispatch('addToCart', $productId);
     }
 }
