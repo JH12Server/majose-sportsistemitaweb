@@ -19,7 +19,13 @@
                     <span class="ms-2 d-none d-lg-inline">Hola, {{ Auth::user()->name ?? 'Usuario' }}</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                    <li><a class="dropdown-item" href="{{ route('perfil') }}">Perfil</a></li>
+                    @if(Auth::check() && method_exists(Auth::user(), 'isWorker') && Auth::user()->isWorker())
+                        <li><a class="dropdown-item" href="{{ route('worker.my-profile') }}">Perfil</a></li>
+                    @elseif(Auth::check() && method_exists(Auth::user(), 'isCustomer') && Auth::user()->isCustomer())
+                        <li><a class="dropdown-item" href="{{ route('customer.my-profile') }}">Perfil</a></li>
+                    @else
+                        <li><a class="dropdown-item" href="{{ route('perfil') }}">Perfil</a></li>
+                    @endif
                     <li><a class="dropdown-item" href="{{ route('configuracion') }}">Configuración</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Cerrar sesión</a></li>

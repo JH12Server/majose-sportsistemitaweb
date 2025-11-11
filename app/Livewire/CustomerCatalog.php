@@ -5,10 +5,13 @@ namespace App\Livewire;
 use App\Models\Product;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
+use App\Livewire\FloatingIcons;
 
 class CustomerCatalog extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     public $search = '';
     public $selectedCategory = '';
@@ -21,6 +24,18 @@ class CustomerCatalog extends Component
     public $showFilters = false;
     public $selectedProduct = null;
     public $showProductModal = false;
+    // Customization fields
+    public $customizationText = '';
+    public $customizationColor = '';
+    public $customizationSize = '';
+    public $customizationFile;
+
+    protected $rules = [
+        'customizationText' => 'nullable|string|max:500',
+        'customizationColor' => 'nullable|string|max:100',
+        'customizationSize' => 'nullable|string|max:50',
+        'customizationFile' => 'nullable|image|max:4096',
+    ];
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -99,18 +114,52 @@ class CustomerCatalog extends Component
     {
         $this->selectedProduct = Product::find($productId);
         $this->showProductModal = true;
+        // reset customization defaults
+        $this->customizationText = '';
+        $this->customizationColor = is_array($this->selectedProduct->available_colors) && count($this->selectedProduct->available_colors) ? $this->selectedProduct->available_colors[0] : '';
+        $this->customizationSize = is_array($this->selectedProduct->available_sizes) && count($this->selectedProduct->available_sizes) ? $this->selectedProduct->available_sizes[0] : '';
+        $this->customizationFile = null;
     }
 
     public function closeProductModal()
     {
         $this->showProductModal = false;
         $this->selectedProduct = null;
+        $this->customizationText = '';
+        $this->customizationColor = '';
+        $this->customizationSize = '';
+        $this->customizationFile = null;
     }
 
     public function addToCart($productId)
     {
-        $this->dispatch('addToCart', $productId);
+        $this->dispatch('addToCart', $productId)->to(FloatingIcons::class);
         $this->dispatch('show-success', 'Producto agregado al carrito');
+    }
+
+    public function addSelectedToCart()
+    {
+        if (!$this->selectedProduct) {
+            return;
+        }
+
+        $customization = [];
+        if ($this->selectedProduct->allows_customization) {
+            $this->validate();
+            $customization = [
+                'text' => $this->customizationText,
+                'color' => $this->customizationColor,
+                'size' => $this->customizationSize,
+            ];
+            if ($this->customizationFile) {
+                $path = $this->customizationFile->store('customizations', 'public');
+                $customization['file'] = $path;
+            }
+        }
+
+        $this->dispatch('addToCart', $this->selectedProduct->id, $customization)->to(FloatingIcons::class);
+        $this->dispatch('show-success', 'Producto agregado al carrito con personalización');
+        $this->closeProductModal();
     }
 
     public function getCategoriesProperty()

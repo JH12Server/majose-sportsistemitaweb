@@ -187,7 +187,7 @@
                 
                 <div class="space-y-3">
                     <a 
-                        href="{{ route('perfil') }}" 
+                        href="{{ route('worker.my-profile') }}" 
                         class="flex items-center p-3 text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     >
                         <svg class="h-5 w-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

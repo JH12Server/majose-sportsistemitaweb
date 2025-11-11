@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Product;
 
 class FloatingIcons extends Component
 {
@@ -15,7 +16,10 @@ class FloatingIcons extends Component
     public $notifications = [];
     public $unreadNotifications = 0;
 
-    protected $listeners = ['cart-updated' => 'loadCartItems'];
+    protected $listeners = [
+        'cart-updated' => 'loadCartItems',
+        'addToCart' => 'addToCart',
+    ];
 
     public function mount()
     {
@@ -107,6 +111,58 @@ class FloatingIcons extends Component
         $this->dispatch('cart-updated');
     }
 
+    public function addToCart($productId, $customization = [])
+    {
+        try {
+            $product = Product::find($productId);
+            if (!$product) {
+                $this->dispatch('show-error', 'Producto no encontrado');
+                return;
+            }
+
+            if (property_exists($product, 'is_active') && !$product->is_active) {
+                $this->dispatch('show-error', 'Este producto no está disponible actualmente');
+                return;
+            }
+
+            if (!is_array($customization)) {
+                $customization = [];
+            }
+            $this->addProductToCart($product, $customization);
+        } catch (\Exception $e) {
+            $this->dispatch('show-error', 'Error al agregar el producto al carrito');
+            \Log::error('FloatingIcons addToCart error: ' . $e->getMessage());
+        }
+    }
+
+    private function addProductToCart($product, $customization = [])
+    {
+        $cart = Session::get('cart', []);
+        $cartKey = $this->generateCartKey($product->id, $customization);
+
+        if (isset($cart[$cartKey])) {
+            $cart[$cartKey]['quantity'] += 1;
+        } else {
+            $cart[$cartKey] = [
+                'product_id' => $product->id,
+                'product' => $product,
+                'quantity' => 1,
+                'unit_price' => $product->base_price,
+                'customization' => $customization,
+            ];
+        }
+
+        Session::put('cart', $cart);
+        $this->loadCartItems();
+        $this->dispatch('cart-updated');
+        $this->dispatch('show-success', 'Producto agregado al carrito');
+    }
+
+    private function generateCartKey($productId, $customization)
+    {
+        return $productId . '_' . md5(serialize($customization));
+    }
+
     public function updateQuantity($cartKey, $quantity)
     {
         if ($quantity <= 0) {
@@ -123,14 +179,24 @@ class FloatingIcons extends Component
 
     public function getTotalItemsProperty()
     {
-        return array_sum(array_column($this->cartItems, 'quantity'));
+        if (!is_array($this->cartItems)) {
+            return 0;
+        }
+        return array_sum(array_map(function($item){
+            return is_array($item) && isset($item['quantity']) ? (int)$item['quantity'] : 0;
+        }, $this->cartItems));
     }
 
     public function getTotalPriceProperty()
     {
+        if (!is_array($this->cartItems)) {
+            return 0;
+        }
         $total = 0;
         foreach ($this->cartItems as $item) {
-            $total += $item['quantity'] * $item['unit_price'];
+            $qty = is_array($item) && isset($item['quantity']) ? (int)$item['quantity'] : 0;
+            $price = is_array($item) && isset($item['unit_price']) ? (float)$item['unit_price'] : 0;
+            $total += $qty * $price;
         }
         return $total;
     }

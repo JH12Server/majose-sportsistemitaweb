@@ -6,7 +6,9 @@
                 <div class="flex items-center space-x-4">
                     <h1 class="text-2xl font-bold text-gray-900">Catálogo de Productos</h1>
                     <span class="text-sm text-gray-500">{{ $products->total() }} productos</span>
-                </div>
+                    <!-- Iconos flotantes (carrito, perfil, notificaciones) -->
+    <livewire:floating-icons />
+</div>
                 
                 <!-- Búsqueda -->
                 <div class="flex-1 max-w-lg mx-8">
@@ -346,20 +348,89 @@
                             @endif
 
                             @if($selectedProduct->allows_customization)
-                                <div class="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                                    <div class="flex items-center">
-                                        <svg class="h-5 w-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                        </svg>
-                                        <span class="text-sm font-medium text-purple-800">Este producto es personalizable</span>
+                                <div class="space-y-4">
+                                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                                        <div class="flex items-center">
+                                            <svg class="h-5 w-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            </svg>
+                                            <span class="text-sm font-medium text-purple-800">Este producto es personalizable</span>
+                                        </div>
+                                        <p class="text-sm text-purple-700 mt-1">Puedes agregar texto, cambiar colores y especificar tallas.</p>
                                     </div>
-                                    <p class="text-sm text-purple-700 mt-1">Puedes agregar texto, cambiar colores y especificar tallas.</p>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Texto personalizado</label>
+                                        <textarea 
+                                            wire:model="customizationText"
+                                            rows="2"
+                                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                            placeholder="Ej. Nombre, frase, instrucciones"
+                                        ></textarea>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                                            @if(is_array($selectedProduct->available_colors) && count($selectedProduct->available_colors))
+                                                <select 
+                                                    wire:model="customizationColor"
+                                                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                >
+                                                    @foreach($selectedProduct->available_colors as $color)
+                                                        <option value="{{ $color }}">{{ $color }}</option>
+                                                    @endforeach
+                                                </select>
+                                            @else
+                                                <input 
+                                                    wire:model="customizationColor"
+                                                    type="text"
+                                                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                    placeholder="Color deseado"
+                                                >
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Talla</label>
+                                            @if(is_array($selectedProduct->available_sizes) && count($selectedProduct->available_sizes))
+                                                <select 
+                                                    wire:model="customizationSize"
+                                                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                >
+                                                    @foreach($selectedProduct->available_sizes as $size)
+                                                        <option value="{{ $size }}">{{ $size }}</option>
+                                                    @endforeach
+                                                </select>
+                                            @else
+                                                <input 
+                                                    wire:model="customizationSize"
+                                                    type="text"
+                                                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                    placeholder="Talla"
+                                                >
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Imagen de referencia</label>
+                                        <input 
+                                            type="file" 
+                                            accept="image/*" 
+                                            wire:model="customizationFile"
+                                            class="w-full border border-gray-300 rounded-md px-3 py-2"
+                                        >
+                                        @error('customizationFile') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                        @if($customizationFile)
+                                            <img src="{{ $customizationFile->temporaryUrl() }}" class="mt-2 h-24 w-24 object-cover rounded" />
+                                        @endif
+                                    </div>
                                 </div>
                             @endif
 
                             <div class="flex space-x-3">
                                 <button 
-                                    wire:click="addToCart({{ $selectedProduct->id }})"
+                                    wire:click="addSelectedToCart"
                                     class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                                 >
                                     Agregar al carrito

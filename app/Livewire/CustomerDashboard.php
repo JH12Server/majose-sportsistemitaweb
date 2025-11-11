@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\Product;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use App\Livewire\FloatingIcons;
 
 class CustomerDashboard extends Component
 {
@@ -67,11 +68,11 @@ class CustomerDashboard extends Component
 
     public function showProductDetail($productId)
     {
-        $this->dispatch('show-product-detail', $productId);
+        $this->dispatch('show-product-detail', $productId)->to(FloatingIcons::class);
     }
 
     public function addToCart($productId)
     {
-        $this->dispatch('addToCart', $productId);
+        $this->dispatch('addToCart', $productId)->to(FloatingIcons::class);
     }
 }

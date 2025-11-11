@@ -101,6 +101,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/customer/orders', App\Livewire\CustomerOrders::class)->name('customer.orders');
         Route::get('/customer/checkout', App\Livewire\CustomerCheckout::class)->name('customer.checkout');
         Route::get('/customer/order-confirmation/{orderId}', App\Livewire\OrderConfirmation::class)->name('customer.order-confirmation');
+        Route::get('/customer/my-profile', App\Livewire\CustomerMyProfile::class)->name('customer.my-profile');
     });
 
     // Rutas para trabajadores
@@ -117,6 +118,7 @@ Route::middleware('auth')->group(function () {
             return view('worker.users');
         })->name('worker.users');
         Route::get('/worker/profile', App\Livewire\WorkerProfile::class)->name('worker.profile');
+        Route::get('/worker/my-profile', App\Livewire\WorkerMyProfile::class)->name('worker.my-profile');
     });
 
     // Rutas legacy (mantener compatibilidad)
