@@ -19,7 +19,7 @@
         <div class="mb-3">
             <label>Foto de perfil</label><br>
             @if($user->foto)
-                <img src="{{ asset('storage/' . $user->foto) }}" alt="Foto de perfil" style="width:80px; height:80px; object-fit:cover; border-radius:50%;">
+                <img src="{{ $user->foto ? asset('storage/' . $user->foto) : asset('images/placeholder.jpg') }}" alt="Foto de perfil" style="width:80px; height:80px; object-fit:cover; border-radius:50%;">
             @endif
             <input type="file" name="foto" class="form-control mt-2">
         </div>

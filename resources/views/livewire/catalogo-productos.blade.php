@@ -18,7 +18,7 @@
             <div class="col-md-4 mb-4">
                 <div class="card h-100">
                     @if($producto->imagen)
-                        <img src="{{ asset('storage/' . $producto->imagen) }}" class="card-img-top" alt="{{ $producto->nombre }}">
+                        <img src="{{ $producto->main_image_url ?? asset('images/placeholder.jpg') }}" onerror="this.onerror=null;this.src='/images/placeholder.jpg'" class="card-img-top" alt="{{ $producto->nombre }}">
                     @endif
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">{{ $producto->nombre }}</h5>

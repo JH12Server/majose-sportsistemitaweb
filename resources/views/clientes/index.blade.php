@@ -1,25 +1,12 @@
 @extends('layouts.app')
-@section('title', ucfirst($type ?? 'clientes'))
+@section('title', 'Clientes')
 @section('content')
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h4 class="mb-0"><i class="bi bi-people"></i>
-                @if(($type ?? 'clientes') === 'clientes') Clientes
-                @elseif(($type ?? '') === 'trabajadores') Trabajadores
-                @elseif(($type ?? '') === 'proveedores') Proveedores
-                @else Usuarios
-                @endif
-            </h4>
-            <nav class="mt-2">
-                <a href="{{ route('usuarios.index', array_merge(request()->all(), ['type' => 'clientes'])) }}" class="btn btn-sm btn-link {{ ($type ?? 'clientes') === 'clientes' ? 'text-decoration-underline' : '' }}">Clientes</a>
-                <a href="{{ route('usuarios.index', array_merge(request()->all(), ['type' => 'trabajadores'])) }}" class="btn btn-sm btn-link {{ ($type ?? '') === 'trabajadores' ? 'text-decoration-underline' : '' }}">Trabajadores</a>
-                <a href="{{ route('usuarios.index', array_merge(request()->all(), ['type' => 'proveedores'])) }}" class="btn btn-sm btn-link {{ ($type ?? '') === 'proveedores' ? 'text-decoration-underline' : '' }}">Proveedores</a>
-                <a href="{{ route('usuarios.index', array_merge(request()->all(), ['type' => 'all'])) }}" class="btn btn-sm btn-link {{ ($type ?? '') === 'all' ? 'text-decoration-underline' : '' }}">Todos</a>
-            </nav>
-        </div>
-        <a href="{{ route('usuarios.create', ['role' => ($type === 'trabajadores' ? 'worker' : ($type === 'proveedores' ? 'provider' : 'user'))]) }}" class="btn btn-primary"><i class="bi bi-plus"></i> Nuevo</a>
+        <h4><i class="bi bi-people"></i> Clientes</h4>
+        <a href="{{ route('usuarios.create', ['role' => 'user']) }}" class="btn btn-primary"><i class="bi bi-plus"></i> Nuevo Cliente</a>
     </div>
+
     <div class="card p-3 mb-4">
         <form method="GET" class="row g-2 align-items-center">
             <div class="col-auto ms-auto">
@@ -30,6 +17,7 @@
             </div>
         </form>
     </div>
+
     <div class="table-responsive">
         <table class="table table-bordered table-hover align-middle">
             <thead>
@@ -82,4 +70,4 @@
         </div>
     </div>
 </div>
-@endsection 
+@endsection

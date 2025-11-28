@@ -9,7 +9,16 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::where('role', 'user');
+        // Support different user lists: clientes (users), trabajadores (workers), proveedores (providers), or all
+        $type = $request->input('type', 'clientes');
+        $query = User::query();
+        if ($type === 'clientes') {
+            $query->where('role', 'user');
+        } elseif ($type === 'trabajadores') {
+            $query->where('role', 'worker');
+        } elseif ($type === 'proveedores') {
+            $query->where('role', 'provider');
+        } // else 'all' -> no role filter
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function($q) use ($search) {
@@ -20,7 +29,27 @@ class UserController extends Controller
             });
         }
         $users = $query->paginate(10)->appends($request->all());
-        return view('admin.usuarios.index', compact('users'));
+        return view('admin.usuarios.index', compact('users', 'type'));
+    }
+
+    /**
+     * Clients-only view (separate from admin usuarios view).
+     */
+    public function clients(Request $request)
+    {
+        $query = User::where('role', 'user');
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('direccion', 'like', "%$search%")
+                  ->orWhere('cedula', 'like', "%$search%")
+                  ->orWhere('tipo_persona', 'like', "%$search%");
+            });
+        }
+        $users = $query->paginate(10)->appends($request->all());
+        // Return a simplified clients view (no admin tabs)
+        return view('clientes.index', compact('users'));
     }
 
     public function create()
@@ -109,22 +138,59 @@ class UserController extends Controller
 
     public function actualizarConfiguracion(Request $request)
     {
-        $user = $request->user();
-        $request->validate([
-            'password_actual' => 'required',
-            'password' => 'nullable|string|min:8|confirmed',
-            'role' => 'nullable|in:admin,user',
-        ]);
-        if (!\Hash::check($request->password_actual, $user->password)) {
-            return back()->withErrors(['password_actual' => 'La contraseña actual es incorrecta']);
+        try {
+            $user = $request->user();
+            
+            // Validación de los datos del formulario
+            $validatedData = $request->validate([
+                'password_actual' => ['required', 'string'],
+                'password' => ['required', 'string', 'min:8', 'confirmed'],
+            ], [
+                'password_actual.required' => 'Debes ingresar tu contraseña actual',
+                'password.required' => 'La nueva contraseña es obligatoria',
+                'password.min' => 'La nueva contraseña debe tener al menos 8 caracteres',
+                'password.confirmed' => 'Las contraseñas no coinciden',
+            ]);
+
+            // Verificar que la contraseña actual sea correcta
+            if (!\Hash::check($request->password_actual, $user->password)) {
+                return back()->withErrors(['password_actual' => 'La contraseña actual es incorrecta'])->withInput();
+            }
+
+            // Verificar que la nueva contraseña sea diferente a la actual
+            if (Hash::check($request->password, $user->password)) {
+                return back()->withErrors(['password' => 'La nueva contraseña debe ser diferente a la actual'])->withInput();
+            }
+
+            // Actualizar la contraseña
+            $user->password = Hash::make($request->password);
+            
+            // Si el usuario es administrador, permitir cambiar el rol
+            if ($request->filled('role') && $user->role === 'admin') {
+                $user->role = $request->role;
+            }
+            
+            if ($user->save()) {
+                // Cerrar sesión después de cambiar la contraseña para mayor seguridad
+                Auth::logout();
+                
+                // Redirigir al login con un mensaje de éxito
+                return redirect()->route('login')
+                    ->with('success', 'Tu contraseña ha sido actualizada correctamente. Por favor inicia sesión nuevamente.');
+            }
+            
+            return back()->with('error', 'No se pudo actualizar la contraseña. Por favor, inténtalo de nuevo.');
+            
+        } catch (\Exception $e) {
+            // Log del error para depuración
+            \Log::error('Error al actualizar la contraseña: ' . $e->getMessage());
+            
+            // Verificar si es un error de validación
+            if ($e instanceof \Illuminate\Validation\ValidationException) {
+                return back()->withErrors($e->validator->errors())->withInput();
+            }
+            
+            return back()->with('error', 'Ocurrió un error inesperado. Por favor, inténtalo de nuevo más tarde.');
         }
-        if ($request->filled('password')) {
-            $user->password = bcrypt($request->password);
-        }
-        if ($request->filled('role') && $user->role === 'admin') {
-            $user->role = $request->role;
-        }
-        $user->save();
-        return redirect()->route('configuracion')->with('success', 'Configuración actualizada correctamente');
     }
 } 

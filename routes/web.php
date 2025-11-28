@@ -1,6 +1,24 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
+// Fallback route to serve product images directly from storage if public/storage link is missing
+Route::get('/product-image/{filename}', function ($filename) {
+    // allow only safe filenames (no directory traversal)
+    if (!preg_match('/^[A-Za-z0-9_\-\.]+$/', $filename)) {
+        abort(404);
+    }
+
+    $path = storage_path('app/public/products/' . $filename);
+    if (!file_exists($path)) {
+        abort(404);
+    }
+
+    return response()->file($path, [
+        'Cache-Control' => 'public, max-age=31536000'
+    ]);
+})->name('product.image');
+
 use Illuminate\Support\Facades\Auth;
 
 // Rutas de autenticación personalizadas
@@ -32,6 +50,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/productos', function () {
         return view('layouts.productos');
     })->name('productos');
+
+    // Página separada de Clientes (vista distinta a Usuarios)
+    Route::get('/clientes', [App\Http\Controllers\UserController::class, 'clients'])->name('clientes.index');
 
     Route::get('/ventas', function () {
         return view('layouts.ventas');
@@ -72,6 +93,9 @@ Route::middleware(['auth'])->group(function () {
     // Rutas solo para administradores
     Route::middleware('admin')->group(function () {
         Route::get('/admin/ventas', AdminVentas::class)->name('admin.ventas');
+        Route::get('/admin/reports', App\Livewire\AdminReports::class)->name('admin.reports');
+            // Roles CRUD (full resource routes under /admin/roles)
+            Route::resource('/admin/roles', App\Http\Controllers\RoleController::class)->names('roles');
     });
 });
 
@@ -117,7 +141,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/worker/users', function() {
             return view('worker.users');
         })->name('worker.users');
-        Route::get('/worker/profile', App\Livewire\WorkerProfile::class)->name('worker.profile');
+        // Use WorkerMyProfile for the worker '/worker/profile' route so it matches the customer profile UI
+        Route::get('/worker/profile', App\Livewire\WorkerMyProfile::class)->name('worker.profile');
         Route::get('/worker/my-profile', App\Livewire\WorkerMyProfile::class)->name('worker.my-profile');
     });
 

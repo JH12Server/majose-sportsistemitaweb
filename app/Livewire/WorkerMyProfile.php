@@ -3,15 +3,24 @@
 namespace App\Livewire;
 
 use App\Models\Order;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
 class WorkerMyProfile extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
+
+    protected $listeners = [
+        'show-error' => 'showError',
+        'show-success' => 'showSuccess'
+    ];
 
     public $user;
     public $editMode = false;
@@ -22,25 +31,42 @@ class WorkerMyProfile extends Component
     public $workerStats = [];
     public $recentOrders = [];
 
+    // Avatar upload and primitive form props (mirror CustomerMyProfile)
+    public $avatar;
+    public $name = '';
+    public $email = '';
+    public $phone = '';
+
     protected $rules = [
-        'user.name' => 'required|string|max:255',
-        'user.email' => 'required|email|max:255',
-        'user.phone' => 'nullable|string|max:20',
+        'name' => 'required|string|max:255',
+        'email' => 'nullable|email|max:255',
+        'phone' => 'nullable|string|max:20',
+        'avatar' => 'nullable|image|max:2048',
         'user.role' => 'nullable|string|max:255',
         'user.work_area' => 'nullable|string|max:255',
     ];
 
     protected $messages = [
-        'user.name.required' => 'El nombre es obligatorio.',
-        'user.email.required' => 'El email es obligatorio.',
-        'user.email.email' => 'El email debe ser válido.',
+        'name.required' => 'El nombre es obligatorio.',
+        'email.email' => 'El email debe ser válido.',
+        'email.unique' => 'Este email ya está en uso.',
     ];
 
     public function mount()
     {
         $this->user = Auth::user();
+        // seed primitive props
+        $this->name = $this->user->name ?? '';
+        $this->email = $this->user->email ?? '';
+        if (Schema::hasColumn('users', 'phone')) {
+            $this->phone = $this->user->phone ?? '';
+        }
+
         $this->loadWorkerStats();
         $this->loadRecentOrders();
+
+        // Emitir evento de carga para inicializar JS si es necesario
+        $this->dispatch('livewire:load');
     }
 
     public function toggleEditMode()
@@ -48,24 +74,94 @@ class WorkerMyProfile extends Component
         $this->editMode = !$this->editMode;
         if (!$this->editMode) {
             $this->user = Auth::user();
+            $this->avatar = null;
+            // reset primitive props to persisted values
+            $this->name = $this->user->name ?? '';
+            $this->email = $this->user->email ?? '';
+            if (Schema::hasColumn('users', 'phone')) {
+                $this->phone = $this->user->phone ?? '';
+            }
         }
     }
 
     public function saveProfile()
     {
         try {
-            $this->validate();
-            $this->user->save();
+            // If email empty, keep previous
+            if (empty($this->email)) {
+                $this->email = Auth::user()->email;
+            }
+
+            // Build rules dynamically (email unique only if changed)
+            $rules = [
+                'name' => 'required|string|max:255',
+                'email' => 'nullable|email|max:255',
+                'phone' => 'nullable|string|max:20',
+                'avatar' => 'nullable|image|max:2048',
+            ];
+
+            $currentEmail = Auth::user()->email;
+            if (!empty($this->email) && $this->email !== $currentEmail) {
+                $rules['email'] .= '|unique:users,email,' . $this->user->id;
+            }
+
+            $this->validate($rules, $this->messages);
+
+            // Prepare data
+            $data = [
+                'name' => trim((string) $this->name),
+                'email' => $this->email,
+            ];
+            if (Schema::hasColumn('users', 'phone')) {
+                $data['phone'] = $this->phone;
+            }
+
+            if (Schema::hasColumn('users', 'role')) {
+                $data['role'] = $this->user->role ?? null;
+            }
+            if (Schema::hasColumn('users', 'work_area')) {
+                $data['work_area'] = $this->user->work_area ?? null;
+            }
+
+            // Handle avatar
+            if ($this->avatar) {
+                if (!empty($this->user->foto) && Storage::disk('public')->exists($this->user->foto)) {
+                    Storage::disk('public')->delete($this->user->foto);
+                }
+                $path = $this->avatar->store('avatars', 'public');
+                $data['foto'] = $path;
+            }
+
+            // Persist
+            $userId = Auth::id();
+            User::where('id', $userId)->update($data);
             Log::info('Perfil de trabajador (nuevo) actualizado', [
                 'user_id' => $this->user->id,
-                'changes' => $this->user->getChanges()
             ]);
+
             $this->editMode = false;
+            $this->user = User::find($userId);
+            $this->name = $this->user->name ?? '';
+            $this->email = $this->user->email ?? '';
+            if (Schema::hasColumn('users', 'phone')) {
+                $this->phone = $this->user->phone ?? '';
+            }
+            $this->avatar = null;
             $this->dispatch('show-success', 'Perfil actualizado correctamente');
         } catch (\Exception $e) {
             $this->dispatch('show-error', 'Error al actualizar el perfil');
             Log::error('Error updating worker my profile: ' . $e->getMessage());
         }
+    }
+
+    public function showError($message)
+    {
+        session()->flash('error', $message);
+    }
+
+    public function showSuccess($message)
+    {
+        session()->flash('success', $message);
     }
 
     public function showChangePasswordModal()

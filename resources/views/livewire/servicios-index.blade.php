@@ -69,7 +69,7 @@
                                 <td>{{ $servicio->id }}</td>
                                 <td>
                                     @if($servicio->imagen)
-                                        <img src="{{ asset('storage/' . $servicio->imagen) }}" 
+                                        <img src="{{ $servicio->imagen ? asset('storage/' . $servicio->imagen) : asset('images/placeholder.jpg') }}" 
                                              alt="{{ $servicio->nombre }}" 
                                              class="img-thumbnail" 
                                              style="width: 50px; height: 50px; object-fit: cover;">

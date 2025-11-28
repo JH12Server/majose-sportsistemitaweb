@@ -164,18 +164,20 @@
                             <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 {{ $viewMode === 'list' ? 'flex items-center p-4' : 'p-4' }}">
                                 @if($viewMode === 'grid')
                                     <!-- Vista de cuadrícula -->
-                                    <div class="aspect-w-1 aspect-h-1 bg-gray-200 rounded-lg overflow-hidden mb-4">
-                                        @if($product->main_image)
-                                            <img 
-                                                src="{{ asset('storage/' . $product->main_image) }}" 
-                                                alt="{{ $product->name }}"
-                                                class="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
-                                            >
-                                        @else
-                                            <div class="w-full h-full flex items-center justify-center text-gray-400">
-                                                <svg class="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                                </svg>
+                                    <div class="aspect-w-1 aspect-h-1 bg-gray-200 rounded-lg overflow-hidden mb-4 relative group">
+                                        <img 
+                                            src="{{ $product->main_image_url }}" 
+                                            alt="{{ $product->name }}"
+                                            wire:click="showProductDetail({{ $product->id }})"
+                                            class="w-full h-full object-cover hover:scale-105 transition-transform duration-200 cursor-pointer"
+                                            loading="lazy"
+                                            onerror="this.onerror=null; this.src='{{ asset('images/placeholder.jpg') }}'"
+                                        >
+                                        @if(count($product->image_urls) > 1)
+                                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                                <span class="text-white bg-black bg-opacity-50 rounded-full px-2 py-1 text-xs">
+                                                    +{{ count($product->image_urls) - 1 }} más
+                                                </span>
                                             </div>
                                         @endif
                                     </div>
@@ -209,11 +211,12 @@
                                 @else
                                     <!-- Vista de lista -->
                                     <div class="w-20 h-20 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0 mr-4">
-                                        @if($product->main_image)
+                                        @if($product->main_image_url)
                                             <img 
-                                                src="{{ asset('storage/' . $product->main_image) }}" 
+                                                src="{{ $product->main_image_url }}" 
                                                 alt="{{ $product->name }}"
-                                                class="w-full h-full object-cover"
+                                                wire:click="showProductDetail({{ $product->id }})"
+                                                class="w-full h-full object-cover cursor-pointer"
                                             >
                                         @else
                                             <div class="w-full h-full flex items-center justify-center text-gray-400">
@@ -304,19 +307,43 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Imagen del producto -->
-                        <div class="aspect-w-1 aspect-h-1 bg-gray-200 rounded-lg overflow-hidden">
-                            @if($selectedProduct->main_image)
-                                <img 
-                                    src="{{ asset('storage/' . $selectedProduct->main_image) }}" 
-                                    alt="{{ $selectedProduct->name }}"
-                                    class="w-full h-full object-cover"
-                                >
-                            @else
-                                <div class="w-full h-full flex items-center justify-center text-gray-400">
-                                    <svg class="h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
+                        <!-- Galería de imágenes del producto -->
+                        <div>
+                            <div class="aspect-w-1 aspect-h-1 bg-gray-200 rounded-lg overflow-hidden mb-4 relative">
+                                @if(count($selectedProduct->image_urls) > 0)
+                                    <img 
+                                        src="{{ $selectedProduct->image_urls[0] }}" 
+                                        alt="{{ $selectedProduct->name }}"
+                                        class="w-full h-full object-cover"
+                                        id="main-product-image"
+                                    >
+                                    <img id="customization-overlay" style="display:none; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); max-width:60%; max-height:60%; object-fit:contain; pointer-events:none; border:2px dashed rgba(0,0,0,0.15); border-radius:6px; background: rgba(255,255,255,0.6);" />
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                        <svg class="h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                @endif
+                            </div>
+                            
+                            @if(count($selectedProduct->image_urls) > 1)
+                                <div class="grid grid-cols-4 gap-2">
+                                    @foreach($selectedProduct->image_urls as $index => $imageUrl)
+                                        <button 
+                                            class="aspect-w-1 aspect-h-1 bg-gray-200 rounded-md overflow-hidden border-2 {{ $index === 0 ? 'border-blue-500' : 'border-transparent' }}"
+                                            onclick="document.getElementById('main-product-image').src = '{{ $imageUrl }}'; 
+                                                    document.querySelectorAll('.thumbnail-button').forEach(btn => btn.classList.remove('border-blue-500'));
+                                                    this.classList.add('border-blue-500');"
+                                        >
+                                            <img 
+                                                src="{{ $imageUrl }}" 
+                                                alt="{{ $selectedProduct->name }} - Imagen {{ $index + 1 }}"
+                                                class="w-full h-full object-cover"
+                                                loading="lazy"
+                                            >
+                                        </button>
+                                    @endforeach
                                 </div>
                             @endif
                         </div>
@@ -415,6 +442,7 @@
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Imagen de referencia</label>
                                         <input 
+                                            id="customization-file-input"
                                             type="file" 
                                             accept="image/*" 
                                             wire:model="customizationFile"
@@ -437,6 +465,7 @@
                                 </button>
                                 <button 
                                     wire:click="closeProductModal"
+                                    onclick="clearCustomizationOverlay()"
                                     class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
                                 >
                                     Cerrar
@@ -449,3 +478,100 @@
         </div>
     @endif
 </div>
+
+@push('scripts')
+<script>
+    function clearCustomizationOverlay() {
+        const overlay = document.getElementById('customization-overlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+            overlay.src = '';
+        }
+        const input = document.getElementById('customization-file-input');
+        if (input) {
+            try { input.value = null; } catch(e) {}
+        }
+    }
+
+    // Use event delegation to handle file input changes even when Livewire replaces the DOM
+    document.addEventListener('change', function (event) {
+        const target = event.target;
+        if (!target) return;
+        if (target.id === 'customization-file-input') {
+            const files = target.files;
+            if (!files || files.length === 0) return;
+            const f = files[0];
+            try {
+                // Revoke previous object URL if any
+                if (window._customizationObjectUrl) {
+                    try { URL.revokeObjectURL(window._customizationObjectUrl); } catch(e) {}
+                    window._customizationObjectUrl = null;
+                }
+                const url = URL.createObjectURL(f);
+                window._customizationObjectUrl = url;
+                const overlay = document.getElementById('customization-overlay');
+                if (overlay) {
+                    overlay.src = url;
+                    overlay.style.display = 'block';
+                    overlay.style.zIndex = '50';
+                    console.log('customization: overlay set from local file input', url);
+                }
+            } catch (err) {
+                console.error('Error creating object URL for customization file', err);
+            }
+        }
+    });
+
+    // Reapply overlay after Livewire finishes processing (handles DOM replacement)
+    document.addEventListener('livewire:load', function () {
+        Livewire.hook('message.processed', (message, component) => {
+            try {
+                const input = document.getElementById('customization-file-input');
+                const overlay = document.getElementById('customization-overlay');
+                // If input still has files, recreate object URL and reapply overlay
+                if (input && input.files && input.files.length && overlay) {
+                    if (window._customizationObjectUrl) {
+                        try { URL.revokeObjectURL(window._customizationObjectUrl); } catch(e) {}
+                        window._customizationObjectUrl = null;
+                    }
+                    const url = URL.createObjectURL(input.files[0]);
+                    window._customizationObjectUrl = url;
+                    overlay.src = url;
+                    overlay.style.display = 'block';
+                    overlay.style.zIndex = '50';
+                    console.log('customization: overlay reapplied from input.files after message.processed', url);
+                }
+
+                // If modal removed (no main image), clear overlay and revoke URL
+                const main = document.getElementById('main-product-image');
+                if (!main && overlay) {
+                    overlay.style.display = 'none';
+                    overlay.src = '';
+                    if (window._customizationObjectUrl) {
+                        try { URL.revokeObjectURL(window._customizationObjectUrl); } catch(e) {}
+                        window._customizationObjectUrl = null;
+                    }
+                }
+                
+                // If overlay still hidden but Livewire rendered a server-side temporary preview image, use it
+                try {
+                    if (overlay && (overlay.style.display === '' || overlay.style.display === 'none')) {
+                        // look for a small preview image rendered by Livewire next to the file input
+                        const thumb = document.querySelector('#customization-file-input')?.closest('div')?.querySelector('img');
+                        if (thumb && thumb.src) {
+                            overlay.src = thumb.src;
+                            overlay.style.display = 'block';
+                            overlay.style.zIndex = '50';
+                            console.log('customization: overlay set from server temporary preview', thumb.src);
+                        }
+                    }
+                } catch (e) {
+                    // ignore
+                }
+            } catch (e) {
+                console.error('Error in Livewire hook for customization overlay', e);
+            }
+        });
+    });
+</script>
+@endpush

@@ -5,7 +5,7 @@
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center space-x-4">
                     <h1 class="text-2xl font-bold text-gray-900">Checkout</h1>
-                    <span class="text-sm text-gray-500">{{ $totalItems }} productos</span>
+                    <span class="text-sm text-gray-500">{{ $this->totalItems }} productos</span>
                 </div>
                 <div class="flex items-center space-x-4">
                     <a href="{{ route('customer.cart') }}" class="text-blue-600 hover:text-blue-800">
@@ -353,7 +353,7 @@
                                     <div class="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                                         @if($item['product']->main_image)
                                             <img 
-                                                src="{{ asset('storage/' . $item['product']->main_image) }}" 
+                                                src="{{ $item['product']->main_image_url ?? asset('images/placeholder.jpg') }}" 
                                                 alt="{{ $item['product']->name }}"
                                                 class="w-full h-full object-cover"
                                             >
@@ -393,8 +393,8 @@
                         <!-- Totales -->
                         <div class="space-y-3 mb-6">
                             <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">Subtotal ({{ $totalItems }} productos)</span>
-                                <span class="font-medium">{{ $formattedTotal }}</span>
+                                <span class="text-gray-600">Subtotal ({{ $this->totalItems }} productos)</span>
+                                <span class="font-medium">{{ $this->formattedTotal }}</span>
                             </div>
                             <div class="flex justify-between text-sm">
                                 <span class="text-gray-600">Envío</span>
@@ -403,7 +403,7 @@
                             <div class="border-t pt-3">
                                 <div class="flex justify-between text-lg font-semibold">
                                     <span>Total</span>
-                                    <span>{{ $formattedTotal }}</span>
+                                    <span>{{ $this->formattedTotal }}</span>
                                 </div>
                             </div>
                         </div>

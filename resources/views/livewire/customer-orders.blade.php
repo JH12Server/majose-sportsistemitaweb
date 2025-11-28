@@ -105,7 +105,7 @@
                                                 <div class="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                                                     @if($item->product->main_image)
                                                         <img 
-                                                            src="{{ asset('storage/' . $item->product->main_image) }}" 
+                                                            src="{{ $item->product->main_image_url ?? asset('images/placeholder.jpg') }}" 
                                                             alt="{{ $item->product->name }}"
                                                             class="w-full h-full object-cover"
                                                         >
@@ -175,7 +175,7 @@
                                                 <span class="text-gray-600">Archivos adjuntos:</span>
                                                 <div class="mt-1 space-y-1">
                                                     @foreach($order->files as $file)
-                                                        <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="flex items-center text-blue-600 hover:text-blue-800">
+                                                        <a href="{{ Storage::disk('public')->url($file->file_path) }}" target="_blank" class="flex items-center text-blue-600 hover:text-blue-800">
                                                             <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
                                                             </svg>

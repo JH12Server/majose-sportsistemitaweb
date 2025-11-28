@@ -96,7 +96,7 @@
             <div class="mb-3">
                 <label class="form-label">Imagen actual:</label>
                 <div class="border rounded p-2 d-inline-block">
-                    <img src="{{ asset('storage/' . $imagen_actual) }}" 
+                    <img src="{{ $imagen_actual ? asset('storage/' . $imagen_actual) : asset('images/placeholder.jpg') }}" 
                          class="img-thumbnail" 
                          style="max-height: 150px; max-width: 200px;">
                 </div>

@@ -6,6 +6,7 @@
                 <div class="flex items-center space-x-4">
                     <h1 class="text-2xl font-bold text-gray-900">Dashboard de Trabajadores</h1>
                     <span class="text-sm text-gray-500">Bienvenido, {{ Auth::user()->name }}</span>
+                    <livewire:floating-icons />
                 </div>
                 <div class="flex items-center space-x-4">
                     <span class="text-sm text-gray-600">{{ Auth::user()->role ?? 'Trabajador' }}</span>
@@ -207,9 +208,9 @@
                                             @foreach($order->items->take(2) as $item)
                                                 <div class="flex items-center space-x-2">
                                                     <div class="w-8 h-8 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                                                        @if($item->product->main_image)
+                                                        @if($item->product->main_image_url)
                                                             <img 
-                                                                src="{{ asset('storage/' . $item->product->main_image) }}" 
+                                                                src="{{ $item->product->main_image_url }}" 
                                                                 alt="{{ $item->product->name }}"
                                                                 class="w-full h-full object-cover"
                                                             >
@@ -340,7 +341,7 @@
                                         <div class="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                                             @if($item->product->main_image)
                                                 <img 
-                                                    src="{{ asset('storage/' . $item->product->main_image) }}" 
+                                                    src="{{ $item->product->main_image_url ?? asset('images/placeholder.jpg') }}" 
                                                     alt="{{ $item->product->name }}"
                                                     class="w-full h-full object-cover"
                                                 >

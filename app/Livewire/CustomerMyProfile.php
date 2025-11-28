@@ -14,6 +14,27 @@ use Livewire\WithFileUploads;
 
 class CustomerMyProfile extends Component
 {
+    protected $listeners = [
+        'password-updated' => 'handlePasswordUpdated',
+        'show-error' => 'showError',
+        'show-success' => 'showSuccess'
+    ];
+    
+    public function handlePasswordUpdated()
+    {
+        Auth::logout();
+        return redirect()->route('login');
+    }
+    
+    public function showError($message)
+    {
+        session()->flash('error', $message);
+    }
+    
+    public function showSuccess($message)
+    {
+        session()->flash('success', $message);
+    }
     public $user;
     public $editMode = false;
     public $showPasswordModal = false;
@@ -54,6 +75,9 @@ class CustomerMyProfile extends Component
         }
         $this->loadCustomerStats();
         $this->loadRecentOrders();
+        
+        // Emitir evento de carga para inicializar JavaScript
+        $this->dispatch('livewire:load');
     }
 
     public function toggleEditMode()
@@ -152,38 +176,61 @@ class CustomerMyProfile extends Component
 
     public function changePassword()
     {
+        // Validar los campos
         $this->validate([
-            'currentPassword' => 'required',
-            'newPassword' => 'required|min:8|confirmed',
-            'confirmPassword' => 'required',
+            'currentPassword' => 'required|string',
+            'newPassword' => 'required|string|min:8|different:currentPassword',
+            'confirmPassword' => 'required|string|same:newPassword',
         ], [
             'currentPassword.required' => 'La contraseña actual es obligatoria.',
             'newPassword.required' => 'La nueva contraseña es obligatoria.',
             'newPassword.min' => 'La nueva contraseña debe tener al menos 8 caracteres.',
-            'newPassword.confirmed' => 'Las contraseñas no coinciden.',
-            'confirmPassword.required' => 'Confirma la nueva contraseña.',
+            'newPassword.different' => 'La nueva contraseña debe ser diferente a la actual.',
+            'confirmPassword.required' => 'Por favor confirma tu nueva contraseña.',
+            'confirmPassword.same' => 'Las contraseñas no coinciden.',
         ]);
 
         try {
+            // Verificar que la contraseña actual sea correcta
             if (!Hash::check($this->currentPassword, $this->user->password)) {
-                $this->dispatch('show-error', 'La contraseña actual es incorrecta');
+                $this->addError('currentPassword', 'La contraseña actual es incorrecta');
                 return;
             }
 
-            $this->user->update([
-                'password' => Hash::make($this->newPassword)
-            ]);
+            // Verificar que la nueva contraseña sea diferente a la actual
+            if (Hash::check($this->newPassword, $this->user->password)) {
+                $this->addError('newPassword', 'La nueva contraseña debe ser diferente a la actual');
+                return;
+            }
 
-            Log::info('Contraseña de cliente (nuevo) actualizada', [
-                'user_id' => $this->user->id,
-                'user_name' => $this->user->name
-            ]);
-
-            $this->closePasswordModal();
-            $this->dispatch('show-success', 'Contraseña actualizada correctamente');
+            // Actualizar la contraseña
+            $this->user->password = Hash::make($this->newPassword);
+            
+            // Guardar los cambios
+            if ($this->user->save()) {
+                // Cerrar el modal y mostrar mensaje de éxito
+                $this->closePasswordModal();
+                $this->dispatch('show-success', 'Contraseña actualizada correctamente. Por tu seguridad, se cerrará la sesión.');
+                
+                // Cerrar sesión después de 2 segundos
+                $this->dispatch('password-updated');
+                
+                // Registrar el cambio de contraseña
+                Log::info('Contraseña de cliente actualizada con éxito', [
+                    'user_id' => $this->user->id,
+                    'user_name' => $this->user->name,
+                    'ip' => request()->ip()
+                ]);
+            } else {
+                $this->dispatch('show-error', 'No se pudo actualizar la contraseña. Por favor, inténtalo de nuevo.');
+            }
+            
         } catch (\Exception $e) {
-            $this->dispatch('show-error', 'Error al actualizar la contraseña');
-            Log::error('Error updating customer password (new): ' . $e->getMessage());
+            Log::error('Error al actualizar la contraseña del cliente: ' . $e->getMessage(), [
+                'user_id' => $this->user->id,
+                'exception' => $e
+            ]);
+            $this->dispatch('show-error', 'Ocurrió un error al actualizar la contraseña. Por favor, inténtalo de nuevo.');
         }
     }
 

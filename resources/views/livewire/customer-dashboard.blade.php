@@ -205,9 +205,9 @@
                             @foreach($featuredProducts->take(8) as $product)
                                 <div class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200">
                                     <div class="aspect-w-1 aspect-h-1 bg-gray-200">
-                                        @if($product->main_image)
+                                        @if($product->main_image_url)
                                             <img 
-                                                src="{{ asset('storage/' . $product->main_image) }}" 
+                                                src="{{ $product->main_image_url }}" onerror="this.onerror=null;this.src='/images/placeholder.jpg'" 
                                                 alt="{{ $product->name }}"
                                                 class="w-full h-48 object-cover hover:scale-105 transition-transform duration-200"
                                             >

@@ -16,15 +16,15 @@
             <li><a href="{{ route('ventas.index') }}" class="d-flex align-items-center gap-2"><i class="bi bi-bar-chart"></i><span class="link_name">Ventas</span></a></li>
             <li><a href="{{ route('caja.gastos') }}" class="d-flex align-items-center gap-2"><i class="bi bi-cash-stack"></i><span class="link_name">Caja / Gastos</span><span class="badge bg-danger ms-2">New</span></a></li>
             <li><a href="#" class="d-flex align-items-center gap-2"><i class="bi bi-grid"></i><span class="link_name">Mesas</span><span class="badge bg-danger ms-2">New</span></a></li>
-            <li><a href="{{ route('usuarios.index') }}" class="d-flex align-items-center gap-2"><i class="bi bi-people"></i><span class="link_name">Clientes</span></a></li>
+            <li><a href="{{ route('clientes.index') }}" class="d-flex align-items-center gap-2"><i class="bi bi-people"></i><span class="link_name">Clientes</span></a></li>
             <li><a href="{{ route('entregas.index') }}" class="d-flex align-items-center gap-2"><i class="bi bi-truck"></i><span class="link_name">Entregas</span></a></li>
-            <li><a href="#" class="d-flex align-items-center gap-2"><i class="bi bi-clipboard-data"></i><span class="link_name">Informes</span><span class="badge bg-danger ms-2">New</span></a></li>
+            <li><a href="{{ route('admin.reports') }}" class="d-flex align-items-center gap-2 {{ request()->routeIs('admin.reports') ? 'active' : '' }}"><i class="bi bi-clipboard-data"></i><span class="link_name">Informes</span><span class="badge bg-danger ms-2">New</span></a></li>
             <li><a href="#" class="d-flex align-items-center gap-2"><i class="bi bi-building"></i><span class="link_name">Empresa</span><span class="badge bg-danger ms-2">New</span></a></li>
         </ul>
         <div class="sidebar-section-title px-4 mt-3 mb-1 text-uppercase text-muted small">ADMIN</div>
         <ul class="menu">
-            <li><a href="#" class="d-flex align-items-center gap-2"><i class="bi bi-people"></i><span class="link_name">Usuarios</span></a></li>
-            <li><a href="#" class="d-flex align-items-center gap-2"><i class="bi bi-person-badge"></i><span class="link_name">Roles</span></a></li>
+            <li><a href="{{ route('usuarios.index', ['type' => 'all']) }}" class="d-flex align-items-center gap-2 {{ request()->routeIs('usuarios.*') ? 'active' : '' }}"><i class="bi bi-people"></i><span class="link_name">Usuarios</span></a></li>
+            <li><a href="{{ route('roles.index') }}" class="d-flex align-items-center gap-2 {{ request()->routeIs('roles.*') ? 'active' : '' }}"><i class="bi bi-person-badge"></i><span class="link_name">Roles</span></a></li>
         </ul>
         <div class="sidebar-section-title px-4 mt-3 mb-1 text-uppercase text-muted small">MANUAL USER</div>
         <ul class="menu">

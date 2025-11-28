@@ -17,7 +17,9 @@
         <div class="mb-3">
             <label>Rol</label>
             <select name="role" class="form-control" required>
-                <option value="user" @if($usuario->role=='user') selected @endif>Usuario</option>
+                <option value="user" @if($usuario->role=='user') selected @endif>Cliente</option>
+                <option value="worker" @if($usuario->role=='worker') selected @endif>Trabajador</option>
+                <option value="provider" @if($usuario->role=='provider') selected @endif>Proveedor</option>
                 <option value="admin" @if($usuario->role=='admin') selected @endif>Administrador</option>
             </select>
         </div>

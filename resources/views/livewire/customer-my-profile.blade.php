@@ -25,7 +25,7 @@
                             @if($avatar)
                                 <img src="{{ $avatar->temporaryUrl() }}" alt="avatar preview" class="w-24 h-24 object-cover">
                             @elseif(!empty($user->foto))
-                                <img src="{{ asset('storage/'.$user->foto) }}" alt="avatar" class="w-24 h-24 object-cover">
+                                <img src="{{ $user->foto ? asset('storage/' . $user->foto) : asset('images/placeholder.jpg') }}" alt="avatar" class="w-24 h-24 object-cover">
                             @else
                                 <svg class="h-12 w-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -208,66 +208,144 @@
 
     <!-- Modal de cambio de contraseña -->
     @if($showPasswordModal)
-        <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 lg:w-1/3 shadow-lg rounded-md bg-white">
-                <div class="mt-3">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-medium text-gray-900">Cambiar Contraseña</h3>
-                        <button wire:click="closePasswordModal" class="text-gray-400 hover:text-gray-600">
-                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+                <!-- Encabezado del modal -->
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-xl font-semibold text-gray-800">Cambiar Contraseña</h3>
+                    <button wire:click="closePasswordModal" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Cuerpo del modal -->
+                <form wire:submit.prevent="changePassword" class="p-6 space-y-6">
+                    <!-- Contraseña Actual -->
+                    <div>
+                        <label for="currentPassword" class="block text-sm font-medium text-gray-700 mb-1">Contraseña Actual</label>
+                        <div class="relative">
+                            <input 
+                                id="currentPassword"
+                                wire:model.lazy="currentPassword"
+                                type="password" 
+                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('currentPassword') border-red-500 @enderror"
+                                autocomplete="current-password"
+                                required
+                            >
+                            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700" onclick="togglePasswordVisibility('currentPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        @error('currentPassword')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña Actual</label>
+                    <!-- Nueva Contraseña -->
+                    <div>
+                        <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-1">Nueva Contraseña</label>
+                        <div class="relative">
                             <input 
-                                wire:model="currentPassword" 
+                                id="newPassword"
+                                wire:model.lazy="newPassword"
                                 type="password" 
-                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('currentPassword') border-red-500 @enderror"
+                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('newPassword') border-red-500 @enderror"
+                                autocomplete="new-password"
+                                required
+                                minlength="8"
                             >
-                            @error('currentPassword') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700" onclick="togglePasswordVisibility('newPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
                         </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Nueva Contraseña</label>
-                            <input 
-                                wire:model="newPassword" 
-                                type="password" 
-                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('newPassword') border-red-500 @enderror"
-                            >
-                            @error('newPassword') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Confirmar Nueva Contraseña</label>
-                            <input 
-                                wire:model="confirmPassword" 
-                                type="password" 
-                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('confirmPassword') border-red-500 @enderror"
-                            >
-                            @error('confirmPassword') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                        </div>
+                        @error('newPassword')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @else
+                            <p class="mt-1 text-xs text-gray-500">Mínimo 8 caracteres</p>
+                        @enderror
                     </div>
 
-                    <div class="mt-6 flex justify-end space-x-3">
+                    <!-- Confirmar Nueva Contraseña -->
+                    <div>
+                        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirmar Nueva Contraseña</label>
+                        <div class="relative">
+                            <input 
+                                id="confirmPassword"
+                                wire:model.lazy="confirmPassword"
+                                type="password" 
+                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('confirmPassword') border-red-500 @enderror"
+                                autocomplete="new-password"
+                                required
+                            >
+                            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700" onclick="togglePasswordVisibility('confirmPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        @error('confirmPassword')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Mensajes de error/success -->
+                    @if (session()->has('error'))
+                        <div class="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+                    <!-- Botones -->
+                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
                         <button 
+                            type="button"
                             wire:click="closePasswordModal"
-                            class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                            class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                         >
                             Cancelar
                         </button>
                         <button 
-                            wire:click="changePassword"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            type="submit"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                            wire:loading.attr="disabled"
+                            wire:target="changePassword"
                         >
-                            Cambiar Contraseña
+                            <span wire:loading.remove wire:target="changePassword">Cambiar Contraseña</span>
+                            <span wire:loading wire:target="changePassword">
+                                <i class="fas fa-spinner fa-spin"></i> Procesando...
+                            </span>
                         </button>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
+
+        @push('scripts')
+        <script>
+            function togglePasswordVisibility(fieldId) {
+                const input = document.getElementById(fieldId);
+                const icon = input.nextElementSibling.querySelector('i');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+
+            // Manejar el cierre de sesión después de cambiar la contraseña
+            document.addEventListener('livewire:load', function () {
+                Livewire.on('password-updated', function () {
+                    setTimeout(() => {
+                        window.location.href = "{{ route('login') }}";
+                    }, 2000);
+                });
+            });
+        </script>
+        @endpush
     @endif
 </div>

@@ -98,7 +98,7 @@
                         <div class="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                             @if($item->product->main_image)
                                 <img 
-                                    src="{{ asset('storage/' . $item->product->main_image) }}" 
+                                    src="{{ $item->product->main_image_url ?? asset('images/placeholder.jpg') }}" 
                                     alt="{{ $item->product->name }}"
                                     class="w-full h-full object-cover"
                                 >

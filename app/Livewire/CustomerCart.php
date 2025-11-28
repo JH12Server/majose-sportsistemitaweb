@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Product;
 use Livewire\Component;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
 
 class CustomerCart extends Component
 {
@@ -52,7 +53,7 @@ class CustomerCart extends Component
             }
         } catch (\Exception $e) {
             $this->dispatch('show-error', 'Error al agregar el producto al carrito');
-            \Log::error('Error adding to cart: ' . $e->getMessage());
+            Log::error('Error adding to cart: ' . $e->getMessage());
         }
     }
 
@@ -141,7 +142,7 @@ class CustomerCart extends Component
             $this->dispatch('cart-updated');
         } catch (\Exception $e) {
             $this->dispatch('show-error', 'Error al actualizar la cantidad');
-            \Log::error('Error updating quantity: ' . $e->getMessage());
+            Log::error('Error updating quantity: ' . $e->getMessage());
         }
     }
 
@@ -183,6 +184,31 @@ class CustomerCart extends Component
     public function getFormattedTotalProperty()
     {
         return '$' . number_format($this->totalPrice, 2);
+    }
+
+    public function proceedToCheckout()
+    {
+        try {
+            if (empty($this->cart)) {
+                $this->dispatch('show-error', 'El carrito está vacío');
+                return;
+            }
+
+            // Verificar disponibilidad de productos antes de proceder
+            foreach ($this->cart as $item) {
+                $product = Product::find($item['product_id']);
+                if (!$product || !$product->is_active) {
+                    $this->dispatch('show-error', "El producto '{$item['product']->name}' ya no está disponible");
+                    return;
+                }
+            }
+
+            // Redirigir al flujo de checkout
+            return redirect()->route('customer.checkout');
+        } catch (\Exception $e) {
+            Log::error('Error al proceder al checkout: ' . $e->getMessage());
+            $this->dispatch('show-error', 'Error al proceder al checkout. Por favor intenta nuevamente.');
+        }
     }
 
     public function render()
