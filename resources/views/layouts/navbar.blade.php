@@ -19,16 +19,24 @@
                     <span class="ms-2 d-none d-lg-inline">Hola, {{ Auth::user()->name ?? 'Usuario' }}</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                    @if(Auth::check() && method_exists(Auth::user(), 'isWorker') && Auth::user()->isWorker())
-                        <li><a class="dropdown-item" href="{{ route('worker.my-profile') }}">Perfil</a></li>
-                    @elseif(Auth::check() && method_exists(Auth::user(), 'isCustomer') && Auth::user()->isCustomer())
-                        <li><a class="dropdown-item" href="{{ route('customer.my-profile') }}">Perfil</a></li>
-                    @else
-                        <li><a class="dropdown-item" href="{{ route('perfil') }}">Perfil</a></li>
+                    @php
+                        $user = Auth::user();
+                        $isAdmin = $user && $user->role === 'admin';
+                        $isWorker = $user && method_exists($user, 'isWorker') && $user->isWorker();
+                        $isCustomer = $user && method_exists($user, 'isCustomer') && $user->isCustomer();
+                    @endphp
+                    
+                    @if($isAdmin)
+                        <li><a class="dropdown-item" href="{{ route('admin.profile') }}"><i class="bi bi-person-circle me-2"></i>Mi Perfil</a></li>
+                    @elseif($isWorker)
+                        <li><a class="dropdown-item" href="{{ route('worker.my-profile') }}"><i class="bi bi-person-circle me-2"></i>Perfil</a></li>
+                    @elseif($isCustomer)
+                        <li><a class="dropdown-item" href="{{ route('customer.my-profile') }}"><i class="bi bi-person-circle me-2"></i>Perfil</a></li>
                     @endif
-                    <li><a class="dropdown-item" href="{{ route('configuracion') }}">Configuración</a></li>
+                    
+                    <li><a class="dropdown-item" href="{{ route('configuracion') ?? '#' }}"><i class="bi bi-gear me-2"></i>Configuración</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Cerrar sesión</a></li>
+                    <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a></li>
                 </ul>
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                     @csrf

@@ -41,6 +41,7 @@ class CustomerCheckout extends Component
     public $termsAccepted = false;
     public $isProcessing = false;
     public $stripePublicKey;
+    public $paypalClientId;
 
     protected $rules = [
         'billingInfo.first_name' => 'required|string|max:255',
@@ -59,7 +60,7 @@ class CustomerCheckout extends Component
         'shippingInfo.state' => 'required|string|max:255',
         'shippingInfo.postal_code' => 'required|string|max:20',
         'shippingInfo.country' => 'required|string|max:255',
-        'paymentMethod' => 'required|string|in:card,paypal',
+        'paymentMethod' => 'required|string|in:card,paypal,cash',
         'termsAccepted' => 'required|accepted',
     ];
 
@@ -99,6 +100,17 @@ class CustomerCheckout extends Component
 
         // Configurar Stripe (en producción usar variables de entorno)
         $this->stripePublicKey = config('services.stripe.key', 'pk_test_...');
+        $this->paypalClientId = config('services.paypal.client_id');
+    }
+
+    public function updatedPaymentMethod($value)
+    {
+        // When user selects PayPal, persist billing/shipping and cart into session
+        if ($value === 'paypal') {
+            Session::put('billing', $this->billingInfo);
+            Session::put('shipping', $this->shippingInfo);
+            Session::put('cart', $this->cart);
+        }
     }
 
     public function updatedSameAsBilling()
@@ -136,27 +148,12 @@ class CustomerCheckout extends Component
 
             $this->isProcessing = true;
 
-            DB::beginTransaction();
-
-            // Crear el pedido
-            $order = $this->createOrder();
-
-            // Crear los items del pedido
-            $this->createOrderItems($order);
-
-            // Procesar el pago (simulado)
-            $this->processStripePayment($order);
-
-            // Limpiar el carrito
-            Session::forget('cart');
-            $this->cart = [];
-
-            DB::commit();
-
-            $this->dispatch('show-success', '¡Pago procesado exitosamente!');
-
-            // Redirigir a la página de confirmación
-            return redirect()->route('customer.order-confirmation', $order->id);
+            // Route based on payment method
+            if ($this->paymentMethod === 'cash') {
+                return $this->processCashPayment();
+            } else {
+                return $this->processGatewayPayment();
+            }
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->isProcessing = false;
@@ -176,6 +173,74 @@ class CustomerCheckout extends Component
         }
     }
 
+    private function processCashPayment()
+    {
+        try {
+            DB::beginTransaction();
+
+            // Crear el pedido
+            $order = $this->createOrder();
+
+            // Crear los items del pedido
+            $this->createOrderItems($order);
+
+            // Marcar pedido como "review" (será revisado por el admin/worker antes de procesar)
+            // El estado 'paid' no existe, usamos 'review' que es el siguiente estado después de 'pending'
+            $order->update([
+                'status' => 'review',
+                'status_notes' => 'Pago en efectivo recibido. Pendiente confirmación del pago.',
+            ]);
+
+            // Limpiar el carrito
+            Session::forget('cart');
+            $this->cart = [];
+
+            DB::commit();
+
+            $this->dispatch('show-success', 'Compra realizada con éxito – Pago en efectivo');
+
+            // Redirigir a mis-compras con mensaje de éxito
+            return redirect()->route('customer.orders')->with('success_message', 'Compra realizada con éxito – Pago en efectivo');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->isProcessing = false;
+            $this->dispatch('show-error', 'Error al procesar el pago en efectivo: ' . $e->getMessage());
+            
+            \Log::error('Error en cash payment: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return false;
+        }
+    }
+
+    private function processGatewayPayment()
+    {
+        DB::beginTransaction();
+
+        // Crear el pedido
+        $order = $this->createOrder();
+
+        // Crear los items del pedido
+        $this->createOrderItems($order);
+
+        // Procesar el pago (simulado)
+        $this->processStripePayment($order);
+
+        // Limpiar el carrito
+        Session::forget('cart');
+        $this->cart = [];
+
+        DB::commit();
+
+        $this->dispatch('show-success', '¡Pago procesado exitosamente!');
+
+        // Redirigir a la página de confirmación
+        return redirect()->route('customer.order-confirmation', $order->id);
+    }
+
     private function createOrder()
     {
         $orderNumber = 'ORD-' . strtoupper(Str::random(8));
@@ -184,24 +249,12 @@ class CustomerCheckout extends Component
             'order_number' => $orderNumber,
             'user_id' => Auth::id(),
             'status' => 'pending',
-            'total_amount' => $this->getTotalPrice(),
-            'billing_first_name' => $this->billingInfo['first_name'],
-            'billing_last_name' => $this->billingInfo['last_name'],
-            'billing_email' => $this->billingInfo['email'],
-            'billing_phone' => $this->billingInfo['phone'],
-            'billing_address' => $this->billingInfo['address'],
-            'billing_city' => $this->billingInfo['city'],
-            'billing_state' => $this->billingInfo['state'],
-            'billing_postal_code' => $this->billingInfo['postal_code'],
-            'billing_country' => $this->billingInfo['country'],
-            'shipping_first_name' => $this->shippingInfo['first_name'],
-            'shipping_last_name' => $this->shippingInfo['last_name'],
-            'shipping_address' => $this->shippingInfo['address'],
-            'shipping_city' => $this->shippingInfo['city'],
-            'shipping_state' => $this->shippingInfo['state'],
-            'shipping_postal_code' => $this->shippingInfo['postal_code'],
-            'shipping_country' => $this->shippingInfo['country'],
-            'payment_method' => $this->paymentMethod,
+            'total_amount' => $this->totalPrice,
+            'customer_notes' => json_encode([
+                'billing' => $this->billingInfo,
+                'shipping' => $this->shippingInfo,
+                'payment_method' => $this->paymentMethod,
+            ]),
             'estimated_delivery' => now()->addDays(7),
         ]);
     }
@@ -214,12 +267,14 @@ class CustomerCheckout extends Component
                 'product_id' => $item['product_id'],
                 'quantity' => $item['quantity'],
                 'unit_price' => $item['unit_price'],
+                'total_price' => $item['quantity'] * $item['unit_price'],
                 'size' => $item['customization']['size'] ?? null,
                 'color' => $item['customization']['color'] ?? null,
                 'customization_text' => $item['customization']['text'] ?? null,
                 'font' => $item['customization']['font'] ?? null,
                 'text_color' => $item['customization']['text_color'] ?? null,
                 'additional_specifications' => $item['customization']['additional_specifications'] ?? null,
+                'reference_file' => $item['reference_file'] ?? null,
             ]);
         }
     }

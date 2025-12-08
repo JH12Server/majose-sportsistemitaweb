@@ -156,6 +156,14 @@ class FloatingIcons extends Component
         $this->loadCartItems();
         $this->dispatch('cart-updated');
         $this->dispatch('show-success', 'Producto agregado al carrito');
+        // Redirigir al carrito de cliente después de agregar el producto
+        $redirectUrl = route('customer.cart');
+        // Intentar redirección desde Livewire; si falla, emitir evento para el navegador
+        try {
+            return $this->redirect($redirectUrl);
+        } catch (\Throwable $e) {
+            $this->dispatchBrowserEvent('redirect', ['url' => $redirectUrl]);
+        }
     }
 
     private function generateCartKey($productId, $customization)

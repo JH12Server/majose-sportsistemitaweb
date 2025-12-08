@@ -24,6 +24,7 @@ class OrderItem extends Model
         'customization_color',
         'customization_design',
         'additional_specifications',
+        'reference_file',
     ];
 
     protected $casts = [
@@ -44,5 +45,16 @@ class OrderItem extends Model
     public function files(): HasMany
     {
         return $this->hasMany(OrderFile::class);
+    }
+
+    /**
+     * Obtener la URL pública de la imagen de referencia
+     */
+    public function getReferenceImageUrlAttribute()
+    {
+        if ($this->reference_file) {
+            return \Illuminate\Support\Facades\Storage::url($this->reference_file);
+        }
+        return null;
     }
 }

@@ -1,9 +1,30 @@
-<div class="fixed bottom-6 right-6 z-50">
+<div>
+    <div class="fixed bottom-6 right-6 z-50">
     @php
         $isWorker = auth()->check() && method_exists(auth()->user(), 'isWorker') && auth()->user()->isWorker();
     @endphp
     <!-- Iconos flotantes -->
     <div class="flex flex-col space-y-4">
+        @if(Auth::check())
+            <!-- Pedidos (acceso rápido para clientes) -->
+            <div class="relative">
+                <a href="{{ route('customer.orders') }}"
+                    class="w-14 h-14 text-white rounded-full shadow-lg transition-all duration-200 flex items-center justify-center group hover:scale-110"
+                    style="background-color: #4f46e5; color: #ffffff; opacity: 1; box-shadow: 0 6px 18px rgba(79,70,229,0.18); z-index:60;"
+                    title="Mis Pedidos"
+                >
+                    <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 7a2 2 0 012-2h3.28a2 2 0 001.94-1.4l.72-2.16A1 1 0 0112 1h0a1 1 0 01.82.44l.72 1.08A2 2 0 0016.46 4H20a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7zm7-3l-.5 1.5A1 1 0 0110.5 6H13a1 1 0 00.82-.44L14.5 4H10zM7 10h10v2H7v-2zm0 4h7v2H7v-2z" />
+                    </svg>
+                
+                    <!-- Tooltip -->
+                </a>
+                <div class="absolute right-16 top-1/2 transform -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                    Mis Pedidos
+                    <div class="absolute right-0 top-1/2 transform translate-x-1 -translate-y-1/2 w-0 h-0 border-l-4 border-l-gray-900 border-t-4 border-t-transparent border-b-4 border-b-transparent"></div>
+                </div>
+            </div>
+        @endif
         <!-- Carrito / Órdenes (para trabajadores) -->
         <div class="relative">
             <button 
@@ -20,11 +41,12 @@
                 @endif
             </button>
             
-            <!-- Tooltip -->
-            <div class="absolute right-16 top-1/2 transform -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                        <!-- Tooltip -->
+            <div class="absolute right-16 top-1/2 transform -translate-y-1/2 bg-black/60 backdrop-blur-md text-white text-sm px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
                 {{ $isWorker ? 'Órdenes y Entregas' : 'Carrito de compras' }}
-                <div class="absolute right-0 top-1/2 transform translate-x-1 -translate-y-1/2 w-0 h-0 border-l-4 border-l-gray-900 border-t-4 border-t-transparent border-b-4 border-b-transparent"></div>
+                <div class="absolute right-0 top-1/2 transform translate-x-1 -translate-y-1/2 w-0 h-0 border-l-4 border-l-gray-900/80 border-t-4 border-t-transparent border-b-4 border-b-transparent"></div>
             </div>
+
         </div>
 
         <!-- Notificaciones -->
@@ -140,6 +162,25 @@
                                     <div class="flex-1 min-w-0">
                                         <h4 class="text-sm font-medium text-gray-900 truncate">{{ $item['product']->name }}</h4>
                                         <p class="text-sm text-gray-500">${{ number_format($item['unit_price'], 2) }}</p>
+                                        @if(!empty($item['customization']['file']))
+                                            @php
+                                                $file = $item['customization']['file'];
+                                                $file = str_replace('\\', '/', $file);
+                                                $url = null;
+                                                if (!empty($file) && (str_starts_with($file, 'http') || str_starts_with($file, '//'))) {
+                                                    $url = $file;
+                                                } elseif (!empty($file) && file_exists(public_path('storage/' . ltrim($file, '/')))) {
+                                                    $url = '/storage/' . ltrim($file, '/');
+                                                } elseif (!empty($file) && file_exists(storage_path('app/public/' . ltrim($file, '/')))) {
+                                                    $url = '/product-image/' . basename($file);
+                                                }
+                                            @endphp
+                                            @if($exists)
+                                                <div class="mt-1">
+                                                    <img src="{{ $url }}" alt="Referencia" class="h-12 w-12 object-cover rounded cursor-pointer" onclick="openPreviewModal('{{ $url }}')">
+                                                </div>
+                                            @endif
+                                        @endif
                                     </div>
                                     
                                     <div class="flex items-center space-x-2">
@@ -368,10 +409,14 @@
     @endif
 </div>
 
+@include('partials.image-preview-modal')
+
 <!-- Overlay para cerrar paneles -->
 @if($showCart || $showNotifications || $showProfile)
     <div 
         wire:click="closeAll"
-        class="fixed inset-0 bg-black bg-opacity-25 z-40"
+        class="fixed inset-0 bg-gray-300 bg-opacity-40"
     ></div>
 @endif
+    </div>
+

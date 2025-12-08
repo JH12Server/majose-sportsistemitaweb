@@ -245,6 +245,13 @@
                 imageObserver.observe(img);
             });
         }
+
+        // Escuchar redirecciones emitidas por Livewire cuando no es posible usar redirect()
+        window.addEventListener('redirect', event => {
+            if (event && event.detail && event.detail.url) {
+                window.location.href = event.detail.url;
+            }
+        });
     </script>
 </body>
 </html>

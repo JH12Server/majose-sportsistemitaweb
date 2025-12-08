@@ -337,19 +337,32 @@
                             <h4 class="text-sm font-medium text-gray-900 mb-3">Productos del Pedido</h4>
                             <div class="space-y-3">
                                 @foreach($selectedOrder->items as $item)
-                                    <div class="flex items-center space-x-4 p-3 border border-gray-200 rounded-lg">
-                                        <div class="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                                            @if($item->product->main_image)
-                                                <img 
-                                                    src="{{ $item->product->main_image_url ?? asset('images/placeholder.jpg') }}" 
-                                                    alt="{{ $item->product->name }}"
-                                                    class="w-full h-full object-cover"
-                                                >
-                                            @else
-                                                <div class="w-full h-full flex items-center justify-center text-gray-400">
-                                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                                    </svg>
+                                    <div class="flex items-start space-x-4 p-3 border border-gray-200 rounded-lg">
+                                        <div class="flex-shrink-0 space-y-3">
+                                            <div class="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+                                                @if($item->product->main_image)
+                                                    <img 
+                                                        src="{{ $item->product->main_image_url ?? asset('images/placeholder.jpg') }}" 
+                                                        alt="{{ $item->product->name }}"
+                                                        class="w-full h-full object-cover"
+                                                    >
+                                                @else
+                                                    <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                        </svg>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            
+                                            @if($item->reference_file)
+                                                <div class="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-300">
+                                                    <img 
+                                                        src="{{ $item->reference_image_url }}"
+                                                        alt="Imagen de referencia"
+                                                        class="w-full h-full object-cover"
+                                                        title="Imagen de referencia del cliente"
+                                                    >
                                                 </div>
                                             @endif
                                         </div>
@@ -377,9 +390,15 @@
                                                     @endif
                                                 </div>
                                             @endif
+                                            
+                                            @if($item->reference_file)
+                                                <div class="mt-2 p-2 bg-blue-50 rounded">
+                                                    <p class="text-xs text-blue-700 font-medium">📎 Imagen de referencia subida por el cliente</p>
+                                                </div>
+                                            @endif
                                         </div>
                                         
-                                        <div class="text-right">
+                                        <div class="text-right flex-shrink-0">
                                             <p class="font-medium text-gray-900">Cantidad: {{ $item->quantity }}</p>
                                             <p class="text-sm text-gray-500">${{ number_format($item->unit_price, 2) }} c/u</p>
                                             <p class="font-semibold text-blue-600">${{ number_format($item->quantity * $item->unit_price, 2) }}</p>

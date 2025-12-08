@@ -3,21 +3,22 @@
 use Illuminate\Support\Facades\Route;
 
 // Fallback route to serve product images directly from storage if public/storage link is missing
-Route::get('/product-image/{filename}', function ($filename) {
-    // allow only safe filenames (no directory traversal)
-    if (!preg_match('/^[A-Za-z0-9_\-\.]+$/', $filename)) {
+Route::get('/product-image/{path}', function ($path) {
+    // only use the basename to avoid directory traversal
+    $filename = basename($path);
+    if (empty($filename)) {
         abort(404);
     }
 
-    $path = storage_path('app/public/products/' . $filename);
-    if (!file_exists($path)) {
+    $pathOnDisk = storage_path('app/public/products/' . $filename);
+    if (!file_exists($pathOnDisk)) {
         abort(404);
     }
 
-    return response()->file($path, [
+    return response()->file($pathOnDisk, [
         'Cache-Control' => 'public, max-age=31536000'
     ]);
-})->name('product.image');
+})->where('path', '.*')->name('product.image');
 
 use Illuminate\Support\Facades\Auth;
 
@@ -94,8 +95,27 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('admin')->group(function () {
         Route::get('/admin/ventas', AdminVentas::class)->name('admin.ventas');
         Route::get('/admin/reports', App\Livewire\AdminReports::class)->name('admin.reports');
-            // Roles CRUD (full resource routes under /admin/roles)
-            Route::resource('/admin/roles', App\Http\Controllers\RoleController::class)->names('roles');
+        
+        // Admin Profile & Users Management
+        Route::get('/admin/profile', function () {
+            return view('admin.profile');
+        })->name('admin.profile');
+        Route::get('/admin/users', function () {
+            return view('admin.users');
+        })->name('admin.users');
+        
+        // Roles CRUD (full resource routes under /admin/roles)
+        Route::resource('/admin/roles', App\Http\Controllers\RoleController::class)->names('roles');
+        
+        // Billboard admin page to manage uploads for catalog
+        Route::get('/admin/billboard', function () {
+            return view('admin.billboard');
+        })->name('admin.billboard');
+
+        // Product CRUD routes used by admin (named as requested)
+        Route::post('/products/create', [App\Http\Controllers\ProductController::class, 'store'])->name('products.create');
+        Route::post('/products/update/{id}', [App\Http\Controllers\ProductController::class, 'update'])->name('products.update');
+        Route::post('/products/delete/{id}', [App\Http\Controllers\ProductController::class, 'destroy'])->name('products.delete');
     });
 });
 
@@ -156,6 +176,10 @@ Route::middleware('auth')->group(function () {
     Route::middleware('admin')->group(function () {
         Route::get('/admin/ventas', AdminVentas::class)->name('admin.ventas');
     });
+
+    // PayPal endpoints (authenticated)
+    Route::post('/paypal/create-order', [App\Http\Controllers\PayPalController::class, 'createOrder'])->name('paypal.create');
+    Route::post('/paypal/capture-order/{orderId}', [App\Http\Controllers\PayPalController::class, 'captureOrder'])->name('paypal.capture');
 });
 
 // Ruta de prueba para diagnóstico
@@ -163,3 +187,5 @@ Route::get('/prueba', function () {
     return 'Funciona';
 });
 
+//payment
+Route::get('paywithpaypal', [App\Http\Controllers\PaymentController::class, 'payWithPayPal'])->name('paywithpaypal');

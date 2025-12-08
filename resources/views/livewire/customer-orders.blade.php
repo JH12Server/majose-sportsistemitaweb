@@ -1,4 +1,18 @@
 <div class="min-h-screen bg-gray-50">
+    <!-- Success Message for Cash Payment -->
+    @if(session('success_message'))
+        <div class="bg-green-50 border border-green-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <div class="flex items-center space-x-3">
+                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-sm font-medium text-green-800">{{ session('success_message') }}</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Header -->
     <div class="bg-white shadow-sm border-b">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

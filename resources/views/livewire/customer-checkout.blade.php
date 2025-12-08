@@ -262,6 +262,7 @@
                                     type="radio" 
                                     value="paypal" 
                                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                    href{{ url('/paypal/pay') }}
                                 >
                                 <div class="ml-3">
                                     <div class="flex items-center">
@@ -271,6 +272,24 @@
                                         <span class="font-medium text-gray-900">PayPal</span>
                                     </div>
                                     <p class="text-sm text-gray-500">Pago rápido y seguro</p>
+                                </div>
+                            </label>
+
+                            <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 {{ $paymentMethod === 'cash' ? 'border-blue-500 bg-blue-50' : '' }}">
+                                <input 
+                                    wire:model="paymentMethod" 
+                                    type="radio" 
+                                    value="cash" 
+                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                >
+                                <div class="ml-3">
+                                    <div class="flex items-center">
+                                        <svg class="h-6 w-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span class="font-medium text-gray-900">Pago en Efectivo</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500">Paga al recibir tu pedido</p>
                                 </div>
                             </label>
                         </div>
@@ -409,22 +428,85 @@
                         </div>
 
                         <!-- Botón de pago -->
-                        <button 
-                            type="submit"
-                            wire:loading.attr="disabled"
-                            class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <span wire:loading.remove wire:target="processPayment">
-                                Proceder al Pago
-                            </span>
-                            <span wire:loading wire:target="processPayment" class="flex items-center justify-center">
-                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Procesando...
-                            </span>
-                        </button>
+                        @if($paymentMethod !== 'paypal')
+                            <button 
+                                type="submit"
+                                wire:loading.attr="disabled"
+                                class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <span wire:loading.remove wire:target="processPayment">
+                                    Proceder al Pago
+                                </span>
+                                <span wire:loading wire:target="processPayment" class="flex items-center justify-center">
+                                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Procesando...
+                                </span>
+                            </button>
+                        @else
+                            <div class="mt-4">
+                                @if(empty($paypalClientId))
+                                    <div class="p-3 mb-3 rounded border border-yellow-300 bg-yellow-50 text-yellow-800">
+                                        PayPal no está configurado. Por favor añade <code>PAYPAL_CLIENT_ID</code> y <code>PAYPAL_SECRET</code> en tu archivo <code>.env</code> (modo sandbox) y recarga la página.
+                                    </div>
+                                @endif
+                                <div id="paypal-buttons"></div>
+                            </div>
+                            <script>
+                                (function(){
+                                    const clientId = "{{ $paypalClientId ?? '' }}";
+                                    if (!clientId) {
+                                        console.warn('PayPal client id not configured');
+                                        return;
+                                    }
+                                    const script = document.createElement('script');
+                                    script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD`;
+                                    script.onload = () => {
+                                        const token = document.querySelector('meta[name=csrf-token]').getAttribute('content');
+
+                                        paypal.Buttons({
+                                            createOrder: function(data, actions) {
+                                                return fetch("{{ route('paypal.create') }}", {
+                                                    method: 'post',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                        'X-CSRF-TOKEN': token,
+                                                        'X-Requested-With': 'XMLHttpRequest'
+                                                    },
+                                                    body: JSON.stringify({})
+                                                }).then(function(res){ return res.json(); }).then(function(data){
+                                                    return data.id;
+                                                });
+                                            },
+                                            onApprove: function(data, actions) {
+                                                return fetch("{{ url('/paypal/capture-order') }}/" + data.orderID, {
+                                                    method: 'post',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                        'X-CSRF-TOKEN': token,
+                                                        'X-Requested-With': 'XMLHttpRequest'
+                                                    },
+                                                    body: JSON.stringify({})
+                                                }).then(function(res){ return res.json(); }).then(function(json){
+                                                    if (json.redirect) {
+                                                        window.location = json.redirect;
+                                                    } else {
+                                                        alert('Pago completado, pero ocurrió un error procesando el pedido en el servidor.');
+                                                    }
+                                                });
+                                            },
+                                            onError: function(err){
+                                                console.error('PayPal error', err);
+                                                alert('Error con PayPal: ' + (err && err.message ? err.message : '')); 
+                                            }
+                                        }).render('#paypal-buttons');
+                                    };
+                                    document.body.appendChild(script);
+                                })();
+                            </script>
+                        @endif
 
                         <!-- Información de seguridad -->
                         <div class="mt-4 pt-4 border-t">

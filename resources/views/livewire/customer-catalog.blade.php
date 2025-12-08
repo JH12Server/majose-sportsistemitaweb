@@ -6,10 +6,9 @@
                 <div class="flex items-center space-x-4">
                     <h1 class="text-2xl font-bold text-gray-900">Catálogo de Productos</h1>
                     <span class="text-sm text-gray-500">{{ $products->total() }} productos</span>
-                    <!-- Iconos flotantes (carrito, perfil, notificaciones) -->
-    <livewire:floating-icons />
-</div>
-                
+                    <livewire:floating-icons />
+                </div>
+
                 <!-- Búsqueda -->
                 <div class="flex-1 max-w-lg mx-8">
                     <div class="relative">
@@ -29,7 +28,6 @@
 
                 <!-- Controles -->
                 <div class="flex items-center space-x-4">
-                    <!-- Filtros -->
                     <button 
                         wire:click="toggleFilters"
                         class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -40,7 +38,6 @@
                         Filtros
                     </button>
 
-                    <!-- Vista -->
                     <div class="flex items-center border border-gray-300 rounded-lg">
                         <button 
                             wire:click="toggleViewMode"
@@ -74,400 +71,249 @@
                     <div class="bg-white rounded-lg shadow-sm p-6 sticky top-24">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-lg font-semibold text-gray-900">Filtros</h3>
-                            <button 
-                                wire:click="clearFilters"
-                                class="text-sm text-blue-600 hover:text-blue-800"
-                            >
-                                Limpiar
-                            </button>
+                            <button wire:click="clearFilters" class="text-sm text-blue-600 hover:text-blue-800">Limpiar</button>
                         </div>
 
-                        <!-- Categorías -->
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
-                            <select wire:model.live="selectedCategory" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <select wire:model.live="selectedCategory" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500">
                                 <option value="">Todas las categorías</option>
                                 @foreach($categories as $category)
                                     <option value="{{ $category }}">{{ $category }}</option>
                                 @endforeach
                             </select>
                         </div>
-
-                        <!-- Marca -->
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Marca</label>
-                            <select wire:model.live="selectedBrand" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="">Todas las marcas</option>
-                                @foreach($brands as $brand)
-                                    <option value="{{ $brand }}">{{ $brand }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Rango de precios -->
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Rango de precios</label>
-                            <div class="space-y-2">
-                                <input 
-                                    wire:model.live.debounce.300ms="minPrice" 
-                                    type="number" 
-                                    placeholder="Precio mínimo" 
-                                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                >
-                                <input 
-                                    wire:model.live.debounce.300ms="maxPrice" 
-                                    type="number" 
-                                    placeholder="Precio máximo" 
-                                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                >
-                            </div>
-                            <div class="text-xs text-gray-500 mt-1">
-                                Rango: ${{ number_format($priceRange['min'], 0) }} - ${{ number_format($priceRange['max'], 0) }}
-                            </div>
-                        </div>
                     </div>
                 </div>
             @endif
 
-            <!-- Contenido principal -->
+            <!-- Lista de productos -->
             <div class="flex-1">
-                <!-- Ordenamiento -->
-                <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-4">
-                            <span class="text-sm text-gray-600">Ordenar por:</span>
-                            <select wire:model.live="sortBy" class="border border-gray-300 rounded-md px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="name">Nombre</option>
-                                <option value="base_price">Precio</option>
-                                <option value="created_at">Más recientes</option>
-                                <option value="category">Categoría</option>
-                            </select>
-                            <button 
-                                wire:click="sortBy('{{ $sortBy }}')"
-                                class="p-1 hover:bg-gray-100 rounded transition-colors"
-                            >
-                                <svg class="h-4 w-4 {{ $sortDirection === 'asc' ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="text-sm text-gray-600">
-                            Mostrando {{ $products->count() }} de {{ $products->total() }} productos
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Grid de productos -->
-                @if($products->count() > 0)
-                    <div class="{{ $viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' : 'space-y-4' }}">
-                        @foreach($products as $product)
-                            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 {{ $viewMode === 'list' ? 'flex items-center p-4' : 'p-4' }}">
-                                @if($viewMode === 'grid')
-                                    <!-- Vista de cuadrícula -->
-                                    <div class="aspect-w-1 aspect-h-1 bg-gray-200 rounded-lg overflow-hidden mb-4 relative group">
-                                        <img 
-                                            src="{{ $product->main_image_url }}" 
-                                            alt="{{ $product->name }}"
-                                            wire:click="showProductDetail({{ $product->id }})"
-                                            class="w-full h-full object-cover hover:scale-105 transition-transform duration-200 cursor-pointer"
-                                            loading="lazy"
-                                            onerror="this.onerror=null; this.src='{{ asset('images/placeholder.jpg') }}'"
-                                        >
-                                        @if(count($product->image_urls) > 1)
-                                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                                                <span class="text-white bg-black bg-opacity-50 rounded-full px-2 py-1 text-xs">
-                                                    +{{ count($product->image_urls) - 1 }} más
-                                                </span>
-                                            </div>
-                                        @endif
-                                    </div>
-                                    
-                                    <div class="space-y-2">
-                                        <h3 class="font-semibold text-gray-900 line-clamp-2">{{ $product->name }}</h3>
-                                        <p class="text-sm text-gray-500">{{ $product->category }}</p>
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-lg font-bold text-blue-600">${{ number_format($product->base_price, 2) }}</span>
-                                            @if($product->allows_customization)
-                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                                    Personalizable
-                                                </span>
-                                            @endif
-                                        </div>
-                                        <div class="flex space-x-2">
-                                            <button 
-                                                wire:click="showProductDetail({{ $product->id }})"
-                                                class="flex-1 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 transition-colors"
-                                            >
-                                                Ver detalles
-                                            </button>
-                                            <button 
-                                                wire:click="addToCart({{ $product->id }})"
-                                                class="flex-1 px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors"
-                                            >
-                                                Agregar
-                                            </button>
-                                        </div>
-                                    </div>
-                                @else
-                                    <!-- Vista de lista -->
-                                    <div class="w-20 h-20 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0 mr-4">
+                @if($products->count())
+                    @if($viewMode === 'grid')
+                        <!-- Vista Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            @foreach($products as $product)
+                                <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-shadow">
+                                    <div class="aspect-w-1 aspect-h-1 bg-gray-200">
                                         @if($product->main_image_url)
-                                            <img 
-                                                src="{{ $product->main_image_url }}" 
-                                                alt="{{ $product->name }}"
-                                                wire:click="showProductDetail({{ $product->id }})"
-                                                class="w-full h-full object-cover cursor-pointer"
-                                            >
+                                            <img src="{{ $product->main_image_url }}" alt="{{ $product->name }}" class="w-full h-64 object-cover cursor-pointer hover:scale-105 transition-transform" wire:click="showProductDetail({{ $product->id }})">
                                         @else
-                                            <div class="w-full h-full flex items-center justify-center text-gray-400">
-                                                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <div class="w-full h-64 flex items-center justify-center bg-gray-100">
+                                                <svg class="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                                 </svg>
                                             </div>
                                         @endif
                                     </div>
-                                    
-                                    <div class="flex-1 min-w-0">
+                                    <div class="p-4">
                                         <h3 class="font-semibold text-gray-900 truncate">{{ $product->name }}</h3>
                                         <p class="text-sm text-gray-500">{{ $product->category }}</p>
-                                        @if($product->description)
-                                            <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ $product->description }}</p>
-                                        @endif
-                                    </div>
-                                    
-                                    <div class="flex items-center space-x-4">
-                                        <div class="text-right">
-                                            <div class="text-lg font-bold text-blue-600">${{ number_format($product->base_price, 2) }}</div>
-                                            @if($product->allows_customization)
-                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                                    Personalizable
-                                                </span>
-                                            @endif
+                                        <div class="mt-3 flex items-center justify-between">
+                                            <div>
+                                                <p class="text-lg font-bold text-blue-600">${{ number_format($product->base_price, 2) }}</p>
+                                                @if($product->allows_customization)
+                                                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">Personalizable</span>
+                                                @endif
+                                            </div>
                                         </div>
-                                        <div class="flex space-x-2">
-                                            <button 
-                                                wire:click="showProductDetail({{ $product->id }})"
-                                                class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 transition-colors"
-                                            >
+                                        <div class="mt-4 flex space-x-2">
+                                            <button wire:click="showProductDetail({{ $product->id }})" class="flex-1 text-sm bg-gray-100 hover:bg-gray-200 py-2 rounded-md transition">
                                                 Ver detalles
                                             </button>
-                                            <button 
-                                                wire:click="addToCart({{ $product->id }})"
-                                                class="px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 transition-colors"
-                                            >
+                                            <button wire:click="addToCart({{ $product->id }})" class="flex-1 text-sm bg-blue-600 text-white hover:bg-blue-700 py-2 rounded-md transition">
                                                 Agregar
                                             </button>
                                         </div>
                                     </div>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                    @else
+                        <!-- Vista Lista -->
+                        <div class="space-y-4">
+                            @foreach($products as $product)
+                                <div class="flex items-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                                    <div class="w-24 h-24 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0 mr-6">
+                                        @if($product->main_image_url)
+                                            <img src="{{ $product->main_image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform" wire:click="showProductDetail({{ $product->id }})">
+                                        @else
+                                            <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                                <svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                </svg>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="text-lg font-semibold text-gray-900">{{ $product->name }}</h3>
+                                        <p class="text-sm text-gray-500">{{ $product->category }} @if($product->brand) • {{ $product->brand }}@endif</p>
+                                        @if($product->description)
+                                            <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ $product->description }}</p>
+                                        @endif
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-2xl font-bold text-blue-600">${{ number_format($product->base_price, 2) }}</p>
+                                        @if($product->allows_customization)
+                                            <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">Personalizable</span>
+                                        @endif
+                                    </div>
+                                    <div class="ml-6 flex space-x-3">
+                                        <button wire:click="showProductDetail({{ $product->id }})" class="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition">
+                                            Ver detalles
+                                        </button>
+                                        <button wire:click="addToCart({{ $product->id }})" class="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded-md transition">
+                                            Agregar
+                                        </button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
 
                     <!-- Paginación -->
                     <div class="mt-8">
                         {{ $products->links() }}
                     </div>
+
                 @else
-                    <!-- Estado vacío -->
-                    <div class="text-center py-12">
+                    <!-- Sin productos -->
+                    <div class="text-center py-16">
                         <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
                         </svg>
-                        <h3 class="mt-4 text-lg font-medium text-gray-900">No se encontraron productos</h3>
-                        <p class="mt-2 text-gray-500">Intenta ajustar los filtros de búsqueda.</p>
-                        <div class="mt-6">
-                            <button 
-                                wire:click="clearFilters"
-                                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-                            >
-                                Limpiar filtros
-                            </button>
-                        </div>
+                        <h3 class="mt-6 text-xl font-medium text-gray-900">No se encontraron productos</h3>
+                        <p class="mt-2 text-gray-500">Prueba ajustar los filtros o la búsqueda.</p>
+                        <button wire:click="clearFilters" class="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                            Limpiar filtros
+                        </button>
                     </div>
                 @endif
             </div>
         </div>
     </div>
 
-    <!-- Modal de detalles del producto -->
+    <!-- Modal único de producto (al final del archivo) -->
     @if($showProductModal && $selectedProduct)
         <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 shadow-lg rounded-md bg-white">
+            <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-2xl rounded-lg bg-white">
                 <div class="mt-3">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-medium text-gray-900">
-                            {{ $selectedProduct->name }}
-                        </h3>
-                        <button wire:click="closeProductModal" class="text-gray-400 hover:text-gray-600">
-                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-gray-900">{{ $selectedProduct->name }}</h3>
+                        <button wire:click="closeProductModal" class="text-gray-400 hover:text-gray-600 text-3xl">×</button>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Galería de imágenes del producto -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Imágenes -->
                         <div>
-                            <div class="aspect-w-1 aspect-h-1 bg-gray-200 rounded-lg overflow-hidden mb-4 relative">
-                                @if(count($selectedProduct->image_urls) > 0)
-                                    <img 
-                                        src="{{ $selectedProduct->image_urls[0] }}" 
-                                        alt="{{ $selectedProduct->name }}"
-                                        class="w-full h-full object-cover"
-                                        id="main-product-image"
-                                    >
-                                    <img id="customization-overlay" style="display:none; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); max-width:60%; max-height:60%; object-fit:contain; pointer-events:none; border:2px dashed rgba(0,0,0,0.15); border-radius:6px; background: rgba(255,255,255,0.6);" />
+                            <div class="relative bg-gray-100 rounded-lg overflow-hidden">
+                                @if(count($selectedProduct->image_urls))
+                                    <img src="{{ $selectedProduct->image_urls[0] }}" alt="{{ $selectedProduct->name }}" class="w-full h-96 object-contain" id="main-product-image">
+                                    <img id="customization-overlay" class="hidden absolute inset-0 m-auto max-w-full max-h-full object-contain pointer-events-none opacity-80" />
                                 @else
-                                    <div class="w-full h-full flex items-center justify-center text-gray-400">
-                                        <svg class="h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="h-96 flex items-center justify-center text-gray-400">
+                                        <svg class="h-24 w-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                         </svg>
                                     </div>
                                 @endif
                             </div>
-                            
+
                             @if(count($selectedProduct->image_urls) > 1)
-                                <div class="grid grid-cols-4 gap-2">
-                                    @foreach($selectedProduct->image_urls as $index => $imageUrl)
-                                        <button 
-                                            class="aspect-w-1 aspect-h-1 bg-gray-200 rounded-md overflow-hidden border-2 {{ $index === 0 ? 'border-blue-500' : 'border-transparent' }}"
-                                            onclick="document.getElementById('main-product-image').src = '{{ $imageUrl }}'; 
-                                                    document.querySelectorAll('.thumbnail-button').forEach(btn => btn.classList.remove('border-blue-500'));
-                                                    this.classList.add('border-blue-500');"
-                                        >
-                                            <img 
-                                                src="{{ $imageUrl }}" 
-                                                alt="{{ $selectedProduct->name }} - Imagen {{ $index + 1 }}"
-                                                class="w-full h-full object-cover"
-                                                loading="lazy"
-                                            >
+                                <div class="grid grid-cols-5 gap-3 mt-4">
+                                    @foreach($selectedProduct->image_urls as $index => $url)
+                                        <button onclick="document.getElementById('main-product-image').src='{{ $url }}'" class="border-2 {{ $index===0 ? 'border-blue-blue-500' : 'border-transparent' }} rounded overflow-hidden">
+                                            <img src="{{ $url }}" class="h-20 w-full object-cover">
                                         </button>
                                     @endforeach
                                 </div>
                             @endif
                         </div>
 
-                        <!-- Información del producto -->
-                        <div class="space-y-4">
+                        <!-- Info y personalización -->
+                        <div class="space-y-6">
                             <div>
-                                <h4 class="text-sm font-medium text-gray-700">Categoría</h4>
-                                <p class="text-sm text-gray-900">{{ $selectedProduct->category }}</p>
+                                <span class="text-sm text-gray-500">Categoría:</span>
+                                <p class="text-lg font-medium">{{ $selectedProduct->category }}</p>
                             </div>
-
                             @if($selectedProduct->brand)
                                 <div>
-                                    <h4 class="text-sm font-medium text-gray-700">Marca</h4>
-                                    <p class="text-sm text-gray-900">{{ $selectedProduct->brand }}</p>
+                                    <span class="text-sm text-gray-500">Marca:</span>
+                                    <p class="text-lg font-medium">{{ $selectedProduct->brand }}</p>
                                 </div>
                             @endif
 
-                            <div>
-                                <h4 class="text-sm font-medium text-gray-700">Precio</h4>
-                                <p class="text-2xl font-bold text-blue-600">${{ number_format($selectedProduct->base_price, 2) }}</p>
+                            <div class="text-3xl font-bold text-blue-600">
+                                ${{ number_format($selectedProduct->base_price, 2) }}
                             </div>
 
                             @if($selectedProduct->description)
                                 <div>
-                                    <h4 class="text-sm font-medium text-gray-700">Descripción</h4>
-                                    <p class="text-sm text-gray-900">{{ $selectedProduct->description }}</p>
+                                    <span class="text-sm text-gray-500">Descripción:</span>
+                                    <p class="mt-1 text-gray-700">{{ $selectedProduct->description }}</p>
                                 </div>
                             @endif
 
                             @if($selectedProduct->allows_customization)
-                                <div class="space-y-4">
-                                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                                        <div class="flex items-center">
-                                            <svg class="h-5 w-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                            </svg>
-                                            <span class="text-sm font-medium text-purple-800">Este producto es personalizable</span>
-                                        </div>
-                                        <p class="text-sm text-purple-700 mt-1">Puedes agregar texto, cambiar colores y especificar tallas.</p>
+                                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                    <div class="flex items-center text-purple-800 font-medium">
+                                        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                        Producto personalizable
                                     </div>
 
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Texto personalizado</label>
-                                        <textarea 
-                                            wire:model="customizationText"
-                                            rows="2"
-                                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                            placeholder="Ej. Nombre, frase, instrucciones"
-                                        ></textarea>
-                                    </div>
-
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="mt-4 space-y-4">
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Color</label>
-                                            @if(is_array($selectedProduct->available_colors) && count($selectedProduct->available_colors))
-                                                <select 
-                                                    wire:model="customizationColor"
-                                                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                >
-                                                    @foreach($selectedProduct->available_colors as $color)
-                                                        <option value="{{ $color }}">{{ $color }}</option>
-                                                    @endforeach
-                                                </select>
-                                            @else
-                                                <input 
-                                                    wire:model="customizationColor"
-                                                    type="text"
-                                                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                    placeholder="Color deseado"
-                                                >
+                                            <label class="block text-sm font-medium text-gray-700">Texto personalizado</label>
+                                            <textarea wire:model="customizationText" rows="3" class="w-full mt-1 border rounded-md px-3 py-2" placeholder="Ej: Juan Pérez, Feliz cumpleaños..."></textarea>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">Color</label>
+                                                @if(is_array($selectedProduct->available_colors) && count($selectedProduct->available_colors))
+                                                    <select wire:model="customizationColor" class="w-full mt-1 border rounded-md px-3 py-2">
+                                                        @foreach($selectedProduct->available_colors as $color)
+                                                            <option>{{ $color }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                @else
+                                                    <input wire:model="customizationColor" type="text" class="w-full mt-1 border rounded-md px-3 py-2" placeholder="Ej: Rojo">
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">Talla</label>
+                                                @if(is_array($selectedProduct->available_sizes) && count($selectedProduct->available_sizes))
+                                                    <select wire:model="customizationSize" class="w-full mt-1 border rounded-md px-3 py-2">
+                                                        @foreach($selectedProduct->available_sizes as $size)
+                                                            <option>{{ $size }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                @else
+                                                    <input wire:model="customizationSize" type="text" class="w-full mt-1 border rounded-md px-3 py-2" placeholder="Ej: M, L, XL">
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Imagen de referencia</label>
+                                            <input id="customization-file-input" type="file" accept="image/*" wire:model="customizationFile" class="w-full mt-1">
+                                            @error('customizationFile') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+                                            @if($customizationFile)
+                                                <img src="{{ $customizationFile->temporaryUrl() }}" class="mt-2 h-32 rounded border">
                                             @endif
                                         </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Talla</label>
-                                            @if(is_array($selectedProduct->available_sizes) && count($selectedProduct->available_sizes))
-                                                <select 
-                                                    wire:model="customizationSize"
-                                                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                >
-                                                    @foreach($selectedProduct->available_sizes as $size)
-                                                        <option value="{{ $size }}">{{ $size }}</option>
-                                                    @endforeach
-                                                </select>
-                                            @else
-                                                <input 
-                                                    wire:model="customizationSize"
-                                                    type="text"
-                                                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                    placeholder="Talla"
-                                                >
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Imagen de referencia</label>
-                                        <input 
-                                            id="customization-file-input"
-                                            type="file" 
-                                            accept="image/*" 
-                                            wire:model="customizationFile"
-                                            class="w-full border border-gray-300 rounded-md px-3 py-2"
-                                        >
-                                        @error('customizationFile') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                                        @if($customizationFile)
-                                            <img src="{{ $customizationFile->temporaryUrl() }}" class="mt-2 h-24 w-24 object-cover rounded" />
-                                        @endif
                                     </div>
                                 </div>
                             @endif
 
-                            <div class="flex space-x-3">
-                                <button 
-                                    wire:click="addSelectedToCart"
-                                    class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                                >
+                            <div class="flex space-x-4 pt-4">
+                                <button wire:click="addSelectedToCart" class="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
                                     Agregar al carrito
                                 </button>
-                                <button 
-                                    wire:click="closeProductModal"
-                                    onclick="clearCustomizationOverlay()"
-                                    class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
-                                >
+                                <button wire:click="closeProductModal" onclick="clearCustomizationOverlay()" class="px-8 py-3 bg-gray-200 rounded-lg hover:bg-gray-300 transition">
                                     Cerrar
                                 </button>
                             </div>
@@ -488,88 +334,35 @@
             overlay.src = '';
         }
         const input = document.getElementById('customization-file-input');
-        if (input) {
-            try { input.value = null; } catch(e) {}
+        if (input) input.value = null;
+        if (window._customizationObjectUrl) {
+            URL.revokeObjectURL(window._customizationObjectUrl);
+            window._customizationObjectUrl = null;
         }
     }
 
-    // Use event delegation to handle file input changes even when Livewire replaces the DOM
-    document.addEventListener('change', function (event) {
-        const target = event.target;
-        if (!target) return;
-        if (target.id === 'customization-file-input') {
-            const files = target.files;
-            if (!files || files.length === 0) return;
-            const f = files[0];
-            try {
-                // Revoke previous object URL if any
-                if (window._customizationObjectUrl) {
-                    try { URL.revokeObjectURL(window._customizationObjectUrl); } catch(e) {}
-                    window._customizationObjectUrl = null;
-                }
-                const url = URL.createObjectURL(f);
-                window._customizationObjectUrl = url;
-                const overlay = document.getElementById('customization-overlay');
-                if (overlay) {
-                    overlay.src = url;
-                    overlay.style.display = 'block';
-                    overlay.style.zIndex = '50';
-                    console.log('customization: overlay set from local file input', url);
-                }
-            } catch (err) {
-                console.error('Error creating object URL for customization file', err);
+    document.addEventListener('change', function(e) {
+        if (e.target.id === 'customization-file-input' && e.target.files[0]) {
+            if (window._customizationObjectUrl) URL.revokeObjectURL(window._customizationObjectUrl);
+            const url = URL.createObjectURL(e.target.files[0]);
+            window._customizationObjectUrl = url;
+            const overlay = document.getElementById('customization-overlay');
+            if (overlay) {
+                overlay.src = url;
+                overlay.style.display = 'block';
             }
         }
     });
 
-    // Reapply overlay after Livewire finishes processing (handles DOM replacement)
-    document.addEventListener('livewire:load', function () {
-        Livewire.hook('message.processed', (message, component) => {
-            try {
-                const input = document.getElementById('customization-file-input');
-                const overlay = document.getElementById('customization-overlay');
-                // If input still has files, recreate object URL and reapply overlay
-                if (input && input.files && input.files.length && overlay) {
-                    if (window._customizationObjectUrl) {
-                        try { URL.revokeObjectURL(window._customizationObjectUrl); } catch(e) {}
-                        window._customizationObjectUrl = null;
-                    }
-                    const url = URL.createObjectURL(input.files[0]);
-                    window._customizationObjectUrl = url;
-                    overlay.src = url;
-                    overlay.style.display = 'block';
-                    overlay.style.zIndex = '50';
-                    console.log('customization: overlay reapplied from input.files after message.processed', url);
-                }
-
-                // If modal removed (no main image), clear overlay and revoke URL
-                const main = document.getElementById('main-product-image');
-                if (!main && overlay) {
-                    overlay.style.display = 'none';
-                    overlay.src = '';
-                    if (window._customizationObjectUrl) {
-                        try { URL.revokeObjectURL(window._customizationObjectUrl); } catch(e) {}
-                        window._customizationObjectUrl = null;
-                    }
-                }
-                
-                // If overlay still hidden but Livewire rendered a server-side temporary preview image, use it
-                try {
-                    if (overlay && (overlay.style.display === '' || overlay.style.display === 'none')) {
-                        // look for a small preview image rendered by Livewire next to the file input
-                        const thumb = document.querySelector('#customization-file-input')?.closest('div')?.querySelector('img');
-                        if (thumb && thumb.src) {
-                            overlay.src = thumb.src;
-                            overlay.style.display = 'block';
-                            overlay.style.zIndex = '50';
-                            console.log('customization: overlay set from server temporary preview', thumb.src);
-                        }
-                    }
-                } catch (e) {
-                    // ignore
-                }
-            } catch (e) {
-                console.error('Error in Livewire hook for customization overlay', e);
+    document.addEventListener('livewire:load', () => {
+        Livewire.hook('message.processed', () => {
+            const input = document.getElementById('customization-file-input');
+            const overlay = document.getElementById('customization-overlay');
+            if (input?.files?.[0] && overlay) {
+                if (window._customizationObjectUrl) URL.revokeObjectURL(window._customizationObjectUrl);
+                window._customizationObjectUrl = URL.createObjectURL(input.files[0]);
+                overlay.src = window._customizationObjectUrl;
+                overlay.style.display = 'block';
             }
         });
     });

@@ -4,14 +4,20 @@ namespace App\Livewire;
 
 use App\Models\Product;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class CustomerCart extends Component
 {
+    use WithFileUploads;
+
     public $cart = [];
     public $showCustomizationModal = false;
     public $selectedProduct = null;
+    public $currentEditingCartKey = null; // Cual item estamos editando
+    public $customizationFileForCart = null; // Archivo del item actual
     public $customization = [
         'size' => '',
         'color' => '',
@@ -24,9 +30,19 @@ class CustomerCart extends Component
 
     protected $listeners = ['addToCart' => 'addToCart'];
 
+    protected $rules = [
+        'customizationFileForCart' => 'nullable|image|max:4096',
+    ];
+
     public function mount()
     {
         $this->cart = Session::get('cart', []);
+        // DEBUG: log current cart contents to investigate missing image URL
+        try {
+            \Log::debug('CustomerCart mounted. Session cart contents:', ['cart' => $this->cart]);
+        } catch (\Throwable $e) {
+            // ignore logging errors
+        }
     }
 
     public function addToCart($productId)
@@ -152,6 +168,106 @@ class CustomerCart extends Component
         Session::put('cart', $this->cart);
         $this->dispatch('cart-updated');
         $this->dispatch('show-success', 'Producto eliminado del carrito');
+    }
+
+    public function selectItemForImageUpload($cartKey)
+    {
+        $this->currentEditingCartKey = $cartKey;
+    }
+
+    public function saveCartReferenceImage($cartKey)
+    {
+        // Validar que el archivo esté presente
+        if (!$this->customizationFileForCart) {
+            $this->dispatch('show-error', 'Por favor selecciona una imagen');
+            return;
+        }
+
+        try {
+            // Validar que el producto existe en el carrito
+            if (!isset($this->cart[$cartKey])) {
+                $this->dispatch('show-error', 'Producto no encontrado en el carrito');
+                return;
+            }
+
+            // Validar el archivo
+            $file = $this->customizationFileForCart;
+            if (!$file->isValid()) {
+                $this->dispatch('show-error', 'Archivo inválido');
+                return;
+            }
+
+            // Asegurar que el directorio customization existe en el item
+            if (!isset($this->cart[$cartKey]['customization']) || !is_array($this->cart[$cartKey]['customization'])) {
+                $this->cart[$cartKey]['customization'] = [];
+            }
+
+            // Asegurar que el directorio de almacenamiento existe
+            $storageDir = storage_path('app/public/customizations');
+            if (!file_exists($storageDir)) {
+                @mkdir($storageDir, 0755, true);
+            }
+
+            // Guardar archivo usando copy + unlink (funciona mejor en Windows que move)
+            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $tempPath = $file->getRealPath();
+            $destPath = $storageDir . DIRECTORY_SEPARATOR . $fileName;
+            
+            if (!copy($tempPath, $destPath)) {
+                throw new \Exception('No se pudo copiar el archivo al destino');
+            }
+            
+            // Limpiar el archivo temporal
+            @unlink($tempPath);
+            
+            $path = 'customizations/' . $fileName;
+            $fullPath = storage_path('app/public/' . $path);
+
+            if (!file_exists($fullPath)) {
+                throw new \Exception('El archivo no se guardó correctamente después de la copia');
+            }
+
+            // Para compatibilidad en entornos Windows donde el enlace simbólico
+            // `public/storage` puede no apuntar a `storage/app/public`, también
+            // copiamos una versión directamente en `public/storage/customizations`
+            // de forma que las URLs tipo `/storage/customizations/...` funcionen.
+            try {
+                $publicDir = public_path('storage/customizations');
+                if (!file_exists($publicDir)) {
+                    @mkdir($publicDir, 0755, true);
+                }
+                @copy($fullPath, $publicDir . DIRECTORY_SEPARATOR . $fileName);
+            } catch (\Throwable $e) {
+                // no crítico; si falla, la imagen seguirá existiendo en storage/app/public
+                Log::warning('No se pudo sincronizar la imagen al public/storage: ' . $e->getMessage());
+            }
+
+            // Actualizar el carrito
+            $this->cart[$cartKey]['reference_file'] = $path;
+            if (!isset($this->cart[$cartKey]['customization'])) {
+                $this->cart[$cartKey]['customization'] = [];
+            }
+            $this->cart[$cartKey]['customization']['image'] = asset('storage/' . $path);
+
+            // Guardar en sesión
+            Session::put('cart', $this->cart);
+
+            // Limpiar el archivo temporal y la edición actual
+            $this->customizationFileForCart = null;
+            $this->currentEditingCartKey = null;
+
+            // Recargar desde sesión
+            $this->cart = Session::get('cart', []);
+
+            $this->dispatch('cart-updated');
+            $this->dispatch('show-success', 'Imagen guardada correctamente');
+
+            Log::info('Reference image saved in cart', ['cartKey' => $cartKey, 'fileName' => $fileName]);
+
+        } catch (\Exception $e) {
+            $this->dispatch('show-error', 'Error al guardar: ' . $e->getMessage());
+            Log::error('Error saving cart reference image: ' . $e->getMessage());
+        }
     }
 
     public function clearCart()

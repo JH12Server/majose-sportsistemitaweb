@@ -154,6 +154,10 @@ class CustomerCatalog extends Component
             if ($this->customizationFile) {
                 $path = $this->customizationFile->store('customizations', 'public');
                 $customization['file'] = $path;
+                // Also store a public URL so cart immediately can show the image
+                $customization['image'] = asset('storage/' . $path);
+                // Keep a canonical reference_file path used by orders/workers
+                $customization['reference_file'] = $path;
             }
         }
 

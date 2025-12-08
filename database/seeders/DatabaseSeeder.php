@@ -44,6 +44,7 @@ class DatabaseSeeder extends Seeder
             EntregaSeeder::class,
             GastoSeeder::class,
             ResumenCajaSeeder::class,
+            CarritoSeeder::class,
         ]);
     }
 }
