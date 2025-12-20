@@ -18,14 +18,14 @@
                 <label class="form-label" for="name">Nombre</label>
                 <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" required aria-label="Nombre">
                 @error('name')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback" style="display: block;"><i class="bi bi-exclamation-circle me-1"></i>{{ str_contains($message, 'required') ? 'El nombre es requerido.' : (str_contains($message, 'max') ? 'El nombre no puede exceder 255 caracteres.' : $message) }}</div>
                 @enderror
             </div>
             <div class="mb-3">
                 <label class="form-label" for="email">Correo Electrónico</label>
                 <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" required aria-label="Correo electrónico">
                 @error('email')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback" style="display: block;"><i class="bi bi-exclamation-circle me-1"></i>{{ str_contains($message, 'required') ? 'El email es requerido.' : (str_contains($message, 'email') ? 'Por favor ingresa un email válido.' : (str_contains($message, 'unique') ? 'Este email ya está registrado.' : $message)) }}</div>
                 @enderror
             </div>
             <div class="mb-3">
@@ -33,11 +33,11 @@
                 <div class="input-group">
                     <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required aria-label="Contraseña">
                     <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)" tabindex="-1" aria-label="Mostrar/ocultar contraseña">
-                        <i class='bx bx-hide'></i>
+                        <i class="bi bi-eye-slash"></i>
                     </button>
                 </div>
                 @error('password')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback" style="display: block;"><i class="bi bi-exclamation-circle me-1"></i>{{ str_contains($message, 'required') ? 'La contraseña es requerida.' : (str_contains($message, 'min') ? 'La contraseña debe tener al menos 8 caracteres.' : (str_contains($message, 'confirmed') ? 'Las contraseñas no coinciden.' : $message)) }}</div>
                 @enderror
             </div>
             <div class="mb-3">
@@ -45,7 +45,7 @@
                 <div class="input-group">
                     <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required aria-label="Confirmar contraseña">
                     <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)" tabindex="-1" aria-label="Mostrar/ocultar contraseña">
-                        <i class='bx bx-hide'></i>
+                        <i class="bi bi-eye-slash"></i>
                     </button>
                 </div>
             </div>
@@ -61,12 +61,15 @@
 <script>
     function togglePassword(button) {
         let input = button.previousElementSibling;
+        let icon = button.querySelector('i');
         if (input.type === "password") {
             input.type = "text";
-            button.innerHTML = "<i class='bx bx-show'></i>";
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
         } else {
             input.type = "password";
-            button.innerHTML = "<i class='bx bx-hide'></i>";
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
         }
     }
 </script>

@@ -130,6 +130,12 @@ class PayPalController extends Controller
                 'payment_id' => $data['id'] ?? $orderId,
             ]);
 
+            // Notificar que el pedido ha sido creado
+            $order->notifyOrderCreated();
+
+            // Notificar que el pago ha sido recibido
+            $order->notifyOrderPaid();
+
             foreach ($cart as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,

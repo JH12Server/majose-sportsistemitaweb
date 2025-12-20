@@ -116,7 +116,7 @@
                                         </div>
                                         <div class="text-right">
                                             <p class="font-semibold text-gray-900">${{ number_format($order->total_amount, 2) }}</p>
-                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap
                                                 @if($order->status === 'pending') bg-yellow-100 text-yellow-800
                                                 @elseif($order->status === 'review') bg-blue-100 text-blue-800
                                                 @elseif($order->status === 'production') bg-orange-100 text-orange-800
@@ -125,7 +125,7 @@
                                                 @elseif($order->status === 'delivered') bg-gray-100 text-gray-800
                                                 @else bg-red-100 text-red-800
                                                 @endif">
-                                                {{ ucfirst($order->status) }}
+                                                {{ $order->status_label }}
                                             </span>
                                         </div>
                                     </div>

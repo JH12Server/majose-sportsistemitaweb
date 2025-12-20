@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Entrega;
+use App\Models\Order;
 use Illuminate\Http\Request;
 
 class EntregaController extends Controller
@@ -12,57 +12,25 @@ class EntregaController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Entrega::query();
+        $query = Order::with(['user', 'items.product']);
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function($q) use ($search) {
-                $q->where('nombre', 'like', "%$search%")
-                  ->orWhere('direccion', 'like', "%$search%")
-                  ->orWhere('tipo_producto', 'like', "%$search%")
-                  ->orWhere('cedula', 'like', "%$search%")
-                  ->orWhere('tipo_persona', 'like', "%$search%") ;
-            });
+            $query->whereHas('user', function($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('address', 'like', "%$search%");
+            })->orWhereHas('items.product', function($q) use ($search) {
+                $q->where('name', 'like', "%$search%");
+            })->orWhere('order_number', 'like', "%$search%");
         }
         $entregas = $query->paginate(10)->appends($request->all());
         return view('admin.entregas.index', compact('entregas'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('admin.entregas.create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nombre' => 'required',
-            'direccion' => 'nullable',
-            'tipo_producto' => 'nullable',
-            'cedula' => 'nullable',
-            'tipo_persona' => 'required',
-            'activo' => 'nullable|boolean',
-        ]);
-        Entrega::create([
-            'nombre' => $request->nombre,
-            'direccion' => $request->direccion,
-            'tipo_producto' => $request->tipo_producto,
-            'cedula' => $request->cedula,
-            'tipo_persona' => $request->tipo_persona,
-            'activo' => $request->has('activo') ? $request->activo : true,
-        ]);
-        return redirect()->route('entregas.index')->with('success', 'Entrega creada correctamente');
-    }
-
+    
     /**
      * Display the specified resource.
      */
-    public function show(Entrega $entrega)
+    public function show(Order $entrega)
     {
         //
     }
@@ -70,7 +38,7 @@ class EntregaController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Entrega $entrega)
+    public function edit(Order $entrega)
     {
         return view('admin.entregas.edit', compact('entrega'));
     }
@@ -78,33 +46,23 @@ class EntregaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Entrega $entrega)
+    public function update(Request $request, Order $entrega)
     {
         $request->validate([
-            'nombre' => 'required',
-            'direccion' => 'nullable',
-            'tipo_producto' => 'nullable',
-            'cedula' => 'nullable',
-            'tipo_persona' => 'required',
-            'activo' => 'nullable|boolean',
+            'status' => 'required|in:pending,review,production,ready,shipped,delivered,cancelled',
         ]);
         $entrega->update([
-            'nombre' => $request->nombre,
-            'direccion' => $request->direccion,
-            'tipo_producto' => $request->tipo_producto,
-            'cedula' => $request->cedula,
-            'tipo_persona' => $request->tipo_persona,
-            'activo' => $request->has('activo') ? $request->activo : true,
+            'status' => $request->status,
         ]);
-        return redirect()->route('entregas.index')->with('success', 'Entrega actualizada correctamente');
+        return redirect()->route('entregas.index')->with('success', 'Estado del pedido actualizado correctamente');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Entrega $entrega)
+    public function destroy(Order $entrega)
     {
         $entrega->delete();
-        return redirect()->route('entregas.index')->with('success', 'Entrega eliminada correctamente');
+        return redirect()->route('entregas.index')->with('success', 'Pedido eliminado correctamente');
     }
 }

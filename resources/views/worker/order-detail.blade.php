@@ -13,6 +13,20 @@ $orderModel = is_numeric($order) ? Order::find($order) : (is_object($order) ? $o
                 <div>
                     <h2 class="text-2xl font-bold">Pedido #{{ $orderModel->order_number }}</h2>
                     <p class="text-sm text-gray-500">Cliente: {{ $orderModel->user->name ?? 'N/A' }} &middot; {{ $orderModel->user->email ?? '' }}</p>
+                    @php
+                        $paymentLabel = 'N/A';
+                        if(isset($orderModel->payment_method)){
+                            $pm = strtolower($orderModel->payment_method);
+                            $map = [
+                                'cash' => 'Efectivo',
+                                'paypal' => 'PayPal',
+                                'credit_card' => 'Tarjeta',
+                                'card' => 'Tarjeta',
+                            ];
+                            $paymentLabel = $map[$pm] ?? ucfirst($orderModel->payment_method);
+                        }
+                    @endphp
+                    <p class="text-sm text-gray-500">Método de Pago: <strong class="font-medium">{{ $paymentLabel }}</strong></p>
                 </div>
                 <div class="text-right">
                     <p class="text-lg font-semibold">Total: ${{ number_format($orderModel->total_amount,2) }}</p>

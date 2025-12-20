@@ -38,6 +38,10 @@ Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('login', [LoginController::class, 'login']);
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
+// Google OAuth
+Route::get('auth/google', [App\Http\Controllers\GoogleAuthController::class, 'redirect'])->name('auth.google');
+Route::get('auth/google/callback', [App\Http\Controllers\GoogleAuthController::class, 'callback'])->name('auth.google.callback');
+
 // Register
 Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('register', [RegisterController::class, 'register']);
@@ -84,12 +88,21 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('usuarios', App\Http\Controllers\UserController::class);
     Route::resource('entregas', App\Http\Controllers\EntregaController::class);
     Route::get('/caja/gastos', [App\Http\Controllers\CajaController::class, 'index'])->name('caja.gastos');
+    Route::get('/pagos/verificacion', [App\Http\Controllers\PagoVerificacionController::class, 'index'])->name('pagos.verificacion');
+    Route::post('/pagos/verificacion/search', [App\Http\Controllers\PagoVerificacionController::class, 'search'])->name('pagos.search');
+    Route::get('/pagos/verificacion/{id}/edit', [App\Http\Controllers\PagoVerificacionController::class, 'edit'])->name('pagos.edit');
+    Route::put('/pagos/verificacion/{id}', [App\Http\Controllers\PagoVerificacionController::class, 'update'])->name('pagos.update');
+    Route::delete('/pagos/verificacion/{id}', [App\Http\Controllers\PagoVerificacionController::class, 'destroy'])->name('pagos.destroy');
     Route::get('/gastos', [App\Http\Controllers\GastoController::class, 'index'])->name('gastos.index');
     Route::post('/gastos', [App\Http\Controllers\GastoController::class, 'store'])->name('gastos.store');
     Route::put('/gastos/{gasto}', [App\Http\Controllers\GastoController::class, 'update'])->name('gastos.update');
     Route::delete('/gastos/{gasto}', [App\Http\Controllers\GastoController::class, 'destroy'])->name('gastos.destroy');
     Route::get('/perfil', [App\Http\Controllers\UserController::class, 'perfil'])->name('perfil');
     Route::post('/perfil', [App\Http\Controllers\UserController::class, 'actualizarPerfil'])->name('perfil.actualizar');
+    
+    // Rutas para editar página web (nuevo editor visual)
+    Route::get('/pagina-web/editor', App\Livewire\PageEditor::class)->name('pagina-web.editor');
+    Route::get('/pagina-web/preview', [App\Http\Controllers\PaginaWebController::class, 'preview'])->name('pagina-web.preview');
     
     // Rutas solo para administradores
     Route::middleware('admin')->group(function () {
@@ -105,7 +118,13 @@ Route::middleware(['auth'])->group(function () {
         })->name('admin.users');
         
         // Roles CRUD (full resource routes under /admin/roles)
-        Route::resource('/admin/roles', App\Http\Controllers\RoleController::class)->names('roles');
+        // Redirigir /admin/roles al dashboard de trabajadores (usamos la ruta Livewire)
+        Route::get('/admin/roles', function () {
+            return redirect()->route('worker.dashboard');
+        })->name('roles.index');
+
+        // Mantener el resto de rutas CRUD para roles (create, store, edit, update, destroy)
+        Route::resource('/admin/roles', App\Http\Controllers\RoleController::class)->names('roles')->except(['index']);
         
         // Billboard admin page to manage uploads for catalog
         Route::get('/admin/billboard', function () {
@@ -119,19 +138,8 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
-// Redirigir '/' según el rol del usuario
+// Redirigir '/' siempre al login
 Route::get('/', function () {
-    if (!Auth::check()) {
-        return redirect()->route('login');
-    }
-    
-    $user = Auth::user();
-    if ($user->isCustomer()) {
-        return redirect()->route('customer.dashboard');
-    } elseif ($user->isWorker()) {
-        return redirect()->route('worker.dashboard');
-    }
-    
     return redirect()->route('login');
 });
 

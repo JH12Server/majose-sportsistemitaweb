@@ -8,23 +8,35 @@
         @method('PUT')
         <div class="mb-3">
             <label>Nombre</label>
-            <input type="text" name="nombre" class="form-control" value="{{ $producto->nombre }}" required>
+            <input type="text" name="name" class="form-control" value="{{ $producto->name }}" required>
+        </div>
+        <div class="mb-3">
+            <label>Descripción</label>
+            <textarea name="description" class="form-control">{{ $producto->description }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label>Precio</label>
+            <input type="number" name="base_price" step="0.01" class="form-control" value="{{ $producto->base_price }}" required>
         </div>
         <div class="mb-3">
             <label>Categoría</label>
-            <select name="categoria_id" class="form-control" required>
+            <select name="category" class="form-control">
+                <option value="">Seleccione una categoría</option>
                 @foreach($categorias as $categoria)
-                    <option value="{{ $categoria->id }}" @if($producto->categoria_id==$categoria->id) selected @endif>{{ $categoria->nombre }}</option>
+                    <option value="{{ $categoria->nombre }}" @if($producto->category==$categoria->nombre) selected @endif>{{ $categoria->nombre }}</option>
                 @endforeach
             </select>
         </div>
         <div class="mb-3">
-            <label>Precio</label>
-            <input type="number" name="precio" class="form-control" value="{{ $producto->precio }}" required>
+            <label>Marca</label>
+            <input type="text" name="brand" class="form-control" value="{{ $producto->brand }}">
         </div>
         <div class="mb-3">
-            <label>Stock</label>
-            <input type="number" name="stock" class="form-control" value="{{ $producto->stock }}" required>
+            <label>Estado</label>
+            <select name="is_active" class="form-control">
+                <option value="1" @if($producto->is_active) selected @endif>Activo</option>
+                <option value="0" @if(!$producto->is_active) selected @endif>Inactivo</option>
+            </select>
         </div>
         <button type="submit" class="btn btn-success">Actualizar</button>
         <a href="{{ route('productos.index') }}" class="btn btn-secondary">Cancelar</a>

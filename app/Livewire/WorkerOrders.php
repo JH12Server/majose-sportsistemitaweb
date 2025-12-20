@@ -108,16 +108,11 @@ class WorkerOrders extends Component
             return;
         }
 
+        $oldStatus = $order->status;
         $order->update(['status' => $status]);
         
-        // Crear notificación para el cliente
-        $order->notifications()->create([
-            'user_id' => $order->user_id,
-            'type' => 'status_update',
-            'title' => 'Estado del pedido actualizado',
-            'message' => "Tu pedido #{$order->order_number} ha cambiado a: {$order->status_label}",
-            'data' => ['order_id' => $order->id, 'status' => $status]
-        ]);
+        // Notificar al cliente sobre el cambio de estado
+        $order->notifyStatusChanged($status);
 
         $this->dispatch('show-success', 'Estado del pedido actualizado correctamente');
     }
@@ -170,9 +165,18 @@ class WorkerOrders extends Component
             return in_array($status, ['review', 'production']);
         }
 
-        // Los encargados de entrega pueden cambiar de 'production' a 'ready', 'shipped' y 'delivered'
+        // Los encargados de entrega pueden cambiar varios estados
         if ($user->role === 'delivery_manager') {
             return in_array($status, ['production', 'ready', 'shipped', 'delivered']);
+        }
+
+        // Si el pedido fue pagado en efectivo, permitir flexibilidad en la transición de estado
+        // para el trabajador asignado o roles de control (admin, supervisor, delivery_manager).
+        // En este caso permitimos cambiar a cualquier estado diferente al actual.
+        if (!empty($order->payment_method) && strtolower($order->payment_method) === 'cash') {
+            if ($user->id === $order->assigned_worker_id || in_array($user->role, ['admin', 'supervisor', 'delivery_manager'])) {
+                return $status !== $order->status;
+            }
         }
 
         return false;
@@ -253,11 +257,23 @@ class WorkerOrders extends Component
             'urgent' => 'Urgente',
         ];
 
+        // Calcular por cada pedido qué cambios de estado están permitidos
+        $allowedChanges = [];
+        foreach ($orders as $order) {
+            foreach (array_keys($statuses) as $statusKey) {
+                if ($statusKey === $order->status) continue;
+                if ($this->canUpdateStatus($user, $order, $statusKey)) {
+                    $allowedChanges[$order->id][] = $statusKey;
+                }
+            }
+        }
+
         return view('livewire.worker-orders', [
             'orders' => $orders,
             'workers' => $workers,
             'statuses' => $statuses,
             'priorities' => $priorities,
+            'allowedChanges' => $allowedChanges,
         ]);
     }
 }

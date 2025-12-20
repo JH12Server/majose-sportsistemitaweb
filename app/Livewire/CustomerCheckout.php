@@ -36,12 +36,10 @@ class CustomerCheckout extends Component
         'country' => 'Colombia',
     ];
     
-    public $paymentMethod = 'card';
+    public $paymentMethod = 'cash';
     public $sameAsBilling = true;
     public $termsAccepted = false;
     public $isProcessing = false;
-    public $stripePublicKey;
-    public $paypalClientId;
 
     protected $rules = [
         'billingInfo.first_name' => 'required|string|max:255',
@@ -60,7 +58,7 @@ class CustomerCheckout extends Component
         'shippingInfo.state' => 'required|string|max:255',
         'shippingInfo.postal_code' => 'required|string|max:20',
         'shippingInfo.country' => 'required|string|max:255',
-        'paymentMethod' => 'required|string|in:card,paypal,cash',
+        'paymentMethod' => 'required|string|in:cash',
         'termsAccepted' => 'required|accepted',
     ];
 
@@ -97,20 +95,12 @@ class CustomerCheckout extends Component
             $this->billingInfo['first_name'] = $user->name;
             $this->billingInfo['email'] = $user->email;
         }
-
-        // Configurar Stripe (en producción usar variables de entorno)
-        $this->stripePublicKey = config('services.stripe.key', 'pk_test_...');
-        $this->paypalClientId = config('services.paypal.client_id');
+        // Configurar métodos de pago
     }
 
     public function updatedPaymentMethod($value)
     {
-        // When user selects PayPal, persist billing/shipping and cart into session
-        if ($value === 'paypal') {
-            Session::put('billing', $this->billingInfo);
-            Session::put('shipping', $this->shippingInfo);
-            Session::put('cart', $this->cart);
-        }
+        // Payment method updated (currently only 'cash' is available)
     }
 
     public function updatedSameAsBilling()
@@ -165,7 +155,7 @@ class CustomerCheckout extends Component
             $this->dispatch('show-error', 'Error al procesar el pago. Por favor, intenta nuevamente.');
             
             // Log del error para debugging
-            \Log::error('Error en checkout: ' . $e->getMessage(), [
+            \Illuminate\Support\Facades\Log::error('Error en checkout: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
                 'cart' => $this->cart,
                 'trace' => $e->getTraceAsString()
@@ -184,12 +174,18 @@ class CustomerCheckout extends Component
             // Crear los items del pedido
             $this->createOrderItems($order);
 
+            // Notificar que el pedido ha sido creado
+            $order->notifyOrderCreated();
+
             // Marcar pedido como "review" (será revisado por el admin/worker antes de procesar)
             // El estado 'paid' no existe, usamos 'review' que es el siguiente estado después de 'pending'
             $order->update([
                 'status' => 'review',
                 'status_notes' => 'Pago en efectivo recibido. Pendiente confirmación del pago.',
             ]);
+
+            // Notificar que el pago ha sido recibido
+            $order->notifyOrderPaid();
 
             // Limpiar el carrito
             Session::forget('cart');
@@ -207,7 +203,7 @@ class CustomerCheckout extends Component
             $this->isProcessing = false;
             $this->dispatch('show-error', 'Error al procesar el pago en efectivo: ' . $e->getMessage());
             
-            \Log::error('Error en cash payment: ' . $e->getMessage(), [
+            \Illuminate\Support\Facades\Log::error('Error en cash payment: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -226,8 +222,14 @@ class CustomerCheckout extends Component
         // Crear los items del pedido
         $this->createOrderItems($order);
 
+        // Notificar que el pedido ha sido creado
+        $order->notifyOrderCreated();
+
         // Procesar el pago (simulado)
         $this->processStripePayment($order);
+
+        // Notificar que el pago ha sido recibido
+        $order->notifyOrderPaid();
 
         // Limpiar el carrito
         Session::forget('cart');

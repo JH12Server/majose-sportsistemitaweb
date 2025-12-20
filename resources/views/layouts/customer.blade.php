@@ -115,6 +115,10 @@
                 
                 <!-- Usuario -->
                 <div class="flex items-center space-x-4">
+                    <!-- Notificaciones para cliente (polling para actualizaciones en tiempo real) -->
+                    @if(Auth::check())
+                        <livewire:notification-center />
+                    @endif
                     <span class="text-sm text-gray-600 hidden sm:block">{{ Auth::user()->name }}</span>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -146,7 +150,39 @@
     <script src="{{ asset('assets/js/script.js') }}"></script>
     @stack('scripts')
     @livewireScripts
-    
+    <!-- Pusher + Echo (client) for customer real-time notifications -->
+    <script src="https://js.pusher.com/8.0/pusher.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.11.3/dist/echo.iife.js"></script>
+    <script>
+        try {
+            window.Pusher = Pusher;
+            window.Echo = new window.Echo({
+                broadcaster: 'pusher',
+                key: '{{ env('PUSHER_APP_KEY') }}',
+                cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
+                wsHost: '{{ env('PUSHER_HOST', "ws.pusherapp.com") }}',
+                wsPort: parseInt('{{ env('PUSHER_PORT', 443) }}'),
+                forceTLS: {{ env('PUSHER_SCHEME', 'https') === 'https' ? 'true' : 'false' }},
+                encrypted: true,
+                auth: {
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                }
+            });
+
+            @auth
+                const userId = {{ Auth::id() }};
+                window.Echo.private('user.' + userId)
+                    .listen('.order.created', (e) => { Livewire.emit('notification-created', e); })
+                    .listen('.order.paid', (e) => { Livewire.emit('notification-created', e); })
+                    .listen('.order.status_changed', (e) => { Livewire.emit('notification-created', e); });
+            @endauth
+        } catch (err) {
+            console.debug('Echo init error (customer):', err);
+        }
+    </script>
+
     <!-- Notificaciones toast -->
     <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
     

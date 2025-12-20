@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/img/majose logo.png') }}">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @livewireStyles
     <style>
         .bg-login {
@@ -40,12 +41,14 @@
     @hasSection('simple')
         @yield('content')
     @else
-        @include('layouts.sidebar')
-        <div class="main-content">
-            @include('layouts.navbar')
-            @yield('content')
-            @yield('livewire')
-        </div>
+        @auth
+            @include('layouts.sidebar')
+            <div class="main-content">
+                @include('layouts.navbar')
+                @yield('content')
+                @yield('livewire')
+            </div>
+        @endauth
     @endif
 
     @yield('modals')
@@ -56,5 +59,46 @@
     <script src="{{ asset('assets/js/script.js') }}"></script>
     @stack('scripts')
     @livewireScripts
+    <!-- Pusher + Echo (required for real-time notifications) -->
+    <script src="https://js.pusher.com/8.0/pusher.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.11.3/dist/echo.iife.js"></script>
+    <script>
+        try {
+            window.Pusher = Pusher;
+            window.Echo = new window.Echo({
+                broadcaster: 'pusher',
+                key: '{{ env('PUSHER_APP_KEY') }}',
+                cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
+                wsHost: '{{ env('PUSHER_HOST', "ws.pusherapp.com") }}',
+                wsPort: parseInt('{{ env('PUSHER_PORT', 443) }}'),
+                forceTLS: {{ env('PUSHER_SCHEME', 'https') === 'https' ? 'true' : 'false' }},
+                encrypted: true,
+                auth: {
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                }
+            });
+
+            @auth
+                const userId = {{ Auth::id() }};
+                // listen on private channel for this user
+                window.Echo.private('user.' + userId)
+                    .listen('.order.created', (e) => { Livewire.emit('notification-created', e); })
+                    .listen('.order.paid', (e) => { Livewire.emit('notification-created', e); })
+                    .listen('.order.status_changed', (e) => { Livewire.emit('notification-created', e); });
+
+                // admin channel
+                @if(Auth::user()->isAdmin())
+                    window.Echo.private('admin')
+                        .listen('.order.created', (e) => { Livewire.emit('notification-created', e); })
+                        .listen('.order.paid', (e) => { Livewire.emit('notification-created', e); })
+                        .listen('.order.status_changed', (e) => { Livewire.emit('notification-created', e); });
+                @endif
+            @endauth
+        } catch (err) {
+            console.debug('Echo init error', err);
+        }
+    </script>
 </body>
 </html>

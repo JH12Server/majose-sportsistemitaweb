@@ -18,7 +18,7 @@
                 <label class="form-label" for="email">Email</label>
                 <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" required autofocus aria-label="Correo electrónico">
                 @error('email')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback" style="display: block;"><i class="bi bi-exclamation-circle me-1"></i>Las credenciales proporcionadas no son correctas.</div>
                 @enderror
             </div>
             <div class="mb-3">
@@ -26,11 +26,11 @@
                 <div class="input-group">
                     <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required aria-label="Contraseña">
                     <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)" tabindex="-1" aria-label="Mostrar/ocultar contraseña">
-                        <i class='bx bx-hide'></i>
+                        <i class="bi bi-eye-slash"></i>
                     </button>
                 </div>
                 @error('password')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback" style="display: block;"><i class="bi bi-exclamation-circle me-1"></i>Las credenciales proporcionadas no son correctas.</div>
                 @enderror
             </div>
             <div class="mb-3 form-check">
@@ -38,10 +38,6 @@
                 <label class="form-check-label" for="remember">Recordarme</label>
             </div>
             <button type="submit" class="btn btn-danger w-100 mb-2">Iniciar Sesión</button>
-            <div class="d-flex flex-column gap-2 mt-2">
-                <button type="button" class="btn btn-outline-secondary w-100" disabled><i class="bi bi-google"></i> Google</button>
-                <button type="button" class="btn btn-outline-secondary w-100" disabled><i class="bi bi-github"></i> GitHub</button>
-            </div>
         </form>
         <div class="text-center mt-3">
             <a href="{{ route('register') }}" class="text-decoration-none">¿No tienes cuenta? <span class="fw-semibold" style="color: var(--primary-color)">Regístrate</span></a>
@@ -53,12 +49,15 @@
 <script>
     function togglePassword(button) {
         let input = button.previousElementSibling;
+        let icon = button.querySelector('i');
         if (input.type === "password") {
             input.type = "text";
-            button.innerHTML = "<i class='bx bx-show'></i>";
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
         } else {
             input.type = "password";
-            button.innerHTML = "<i class='bx bx-hide'></i>";
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
         }
     }
 </script>

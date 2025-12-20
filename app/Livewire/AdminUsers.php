@@ -23,30 +23,31 @@ class AdminUsers extends Component
     public $password_confirmation = '';
     public $role = '';
 
-    // Available roles
-    protected $availableRoles = ['admin', 'cliente', 'trabajador', 'proveedor'];
+    // Available roles (match /usuarios/{id}/edit)
+    protected $availableRoles = ['user', 'worker', 'provider', 'admin'];
 
     protected $rules = [
         'name' => 'required|string|max:255',
         'email' => 'required|email|unique:users,email',
         'password' => 'required|string|min:8|confirmed',
-        'role' => 'required|in:admin,cliente,trabajador,proveedor',
+        'role' => 'required|in:user,worker,provider,admin',
     ];
 
     protected $rulesUpdate = [
         'name' => 'required|string|max:255',
         'email' => 'required|email',
-        'role' => 'required|in:admin,cliente,trabajador,proveedor',
+        'role' => 'required|in:user,worker,provider,admin',
+        'password' => 'nullable|string|min:8',
     ];
 
     public function updatedSearch()
     {
-        $this->resetPage();
+        $this->applyFilters();
     }
 
     public function updatedRoleFilter()
     {
-        $this->resetPage();
+        $this->applyFilters();
     }
 
     public function openCreateForm()
@@ -112,7 +113,8 @@ class AdminUsers extends Component
     {
         $rules = [
             'name' => 'required|string|max:255',
-            'role' => 'required|in:admin,cliente,trabajador,proveedor',
+            'role' => 'required|in:user,worker,provider,admin',
+            'password' => 'nullable|string|min:8',
         ];
 
         $user = User::find($this->editingUserId);
@@ -122,11 +124,17 @@ class AdminUsers extends Component
 
         $this->validate($rules);
 
-        $user->update([
+        $data = [
             'name' => $this->name,
             'email' => $this->email,
             'role' => $this->role,
-        ]);
+        ];
+
+        if (!empty($this->password)) {
+            $data['password'] = Hash::make($this->password);
+        }
+
+        $user->update($data);
 
         $this->dispatch('notify', message: 'Usuario actualizado exitosamente');
         $this->editingUserId = null;
@@ -139,24 +147,62 @@ class AdminUsers extends Component
         $this->resetForm();
     }
 
+    public function applyFilters()
+    {
+        // simple helper to trigger a filter action (keeps Livewire behavior consistent with a "Filtrar" button)
+        $this->resetPage();
+        $this->search = trim((string) $this->search);
+        $this->role_filter = $this->role_filter ?: '';
+    }
+
     public function render()
     {
         $query = User::query();
 
-        if ($this->search) {
-            $query->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('email', 'like', '%' . $this->search . '%');
+        $searchRaw = trim((string) $this->search);
+        if ($searchRaw !== '') {
+            $search = $searchRaw;
+            $lower = mb_strtolower($search);
+
+            $query->where(function($q) use ($search, $lower) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%')
+                  ->orWhere('role', 'like', '%' . $search . '%');
+
+                // Map common Spanish role words to internal role values
+                $map = [
+                    'cliente' => 'user',
+                    'clientes' => 'user',
+                    'trabajador' => 'worker',
+                    'trabajadores' => 'worker',
+                    'proveedor' => 'provider',
+                    'proveedores' => 'provider',
+                    'administrador' => 'admin',
+                    'admin' => 'admin',
+                    'diseñador' => 'designer',
+                    'bordador' => 'embroiderer',
+                ];
+
+                foreach ($map as $spanish => $roleVal) {
+                    if (strpos($lower, $spanish) !== false) {
+                        $q->orWhere('role', $roleVal);
+                    }
+                }
+            });
         }
 
-        if ($this->role_filter) {
+        if (!empty($this->role_filter)) {
             $query->where('role', $this->role_filter);
         }
 
         $users = $query->paginate(15);
 
+        // provide dynamic roles list from DB
+        $rolesList = User::select('role')->distinct()->pluck('role')->filter()->values()->toArray();
+
         return view('livewire.admin-users', [
             'users' => $users,
-            'roles' => $this->availableRoles,
+            'roles' => $rolesList,
         ]);
     }
 }

@@ -225,7 +225,10 @@
                                                         <span class="font-medium">Cambiar estado:</span>
                                                     </div>
                                                     @foreach($statuses as $statusKey => $statusLabel)
-                                                        @if($statusKey !== $order->status)
+                                                        @php
+                                                            $allowed = isset($allowedChanges[$order->id]) && in_array($statusKey, $allowedChanges[$order->id]);
+                                                        @endphp
+                                                        @if($statusKey !== $order->status && $allowed)
                                                             <button 
                                                                 wire:click="updateOrderStatus({{ $order->id }}, '{{ $statusKey }}')"
                                                                 class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

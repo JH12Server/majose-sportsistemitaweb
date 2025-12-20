@@ -54,7 +54,12 @@
                     
                     <div class="flex justify-between">
                         <span class="text-gray-600">Método de pago:</span>
-                        <span class="font-medium">{{ ucfirst($order->payment_method) }}</span>
+                        @php
+                            $pm = strtolower($order->payment_method ?? '');
+                            $map = ['cash' => 'Efectivo', 'paypal' => 'PayPal', 'credit_card' => 'Tarjeta', 'card' => 'Tarjeta'];
+                            $paymentLabel = $map[$pm] ?? ucfirst($order->payment_method ?? 'N/A');
+                        @endphp
+                        <span class="font-medium">{{ $paymentLabel }}</span>
                     </div>
                     
                     <div class="flex justify-between">

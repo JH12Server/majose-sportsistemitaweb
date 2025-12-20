@@ -7,28 +7,32 @@
         @csrf
         <div class="mb-3">
             <label>Nombre</label>
-            <input type="text" name="nombre" class="form-control" required>
+            <input type="text" name="name" class="form-control" required>
         </div>
         <div class="mb-3">
             <label>Descripción</label>
-            <textarea name="descripcion" class="form-control"></textarea>
+            <textarea name="description" class="form-control"></textarea>
         </div>
         <div class="mb-3">
             <label>Precio</label>
-            <input type="number" step="0.01" name="precio" class="form-control" required>
+            <input type="number" step="0.01" name="base_price" class="form-control" required>
         </div>
         <div class="mb-3">
             <label>Categoría</label>
-            <select name="categoria_id" class="form-control" required>
+            <select name="category" class="form-control">
                 <option value="">Seleccione una categoría</option>
                 @foreach($categorias as $categoria)
-                    <option value="{{ $categoria->id }}">{{ $categoria->nombre }}</option>
+                    <option value="{{ $categoria->nombre }}">{{ $categoria->nombre }}</option>
                 @endforeach
             </select>
         </div>
         <div class="mb-3">
+            <label>Marca</label>
+            <input type="text" name="brand" class="form-control">
+        </div>
+        <div class="mb-3">
             <label>Estado</label>
-            <select name="estado" class="form-control">
+            <select name="is_active" class="form-control">
                 <option value="1">Activo</option>
                 <option value="0">Inactivo</option>
             </select>

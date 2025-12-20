@@ -68,9 +68,9 @@
                             <tr>
                                 <td>{{ $servicio->id }}</td>
                                 <td>
-                                    @if($servicio->imagen)
-                                        <img src="{{ $servicio->imagen ? asset('storage/' . $servicio->imagen) : asset('images/placeholder.jpg') }}" 
-                                             alt="{{ $servicio->nombre }}" 
+                                    @if(!empty($servicio->main_image_url))
+                                        <img src="{{ $servicio->main_image_url }}" 
+                                             alt="{{ $servicio->name }}" 
                                              class="img-thumbnail" 
                                              style="width: 50px; height: 50px; object-fit: cover;">
                                     @else
@@ -80,25 +80,29 @@
                                         </div>
                                     @endif
                                 </td>
-                                <td><strong>{{ $servicio->nombre }}</strong></td>
-                                <td>{{ Str::limit($servicio->descripcion, 50) }}</td>
+                                <td><strong>{{ $servicio->name }}</strong></td>
+                                <td>{{ Str::limit($servicio->description, 50) }}</td>
                                 <td>
-                                    @if($servicio->categoria)
-                                        <span class="badge bg-info">{{ $servicio->categoria }}</span>
+                                    @if($servicio->category)
+                                        <span class="badge bg-info">{{ $servicio->category }}</span>
                                     @else
                                         <span class="text-muted">Sin categoría</span>
                                     @endif
                                 </td>
                                 <td>
-                                    @if($servicio->precio)
-                                        <span class="text-success fw-bold">${{ number_format($servicio->precio, 2) }}</span>
+                                    @if(isset($servicio->base_price))
+                                        @if(isset($servicio->formatted_price))
+                                            <span class="text-success fw-bold">{{ $servicio->formatted_price }}</span>
+                                        @else
+                                            <span class="text-success fw-bold">${{ number_format($servicio->base_price, 2) }}</span>
+                                        @endif
                                     @else
                                         <span class="text-muted">Sin precio</span>
                                     @endif
                                 </td>
                                 <td>
-                                    <span class="badge {{ $servicio->estado ? 'bg-success' : 'bg-secondary' }}">
-                                        {{ $servicio->estado ? 'Activo' : 'Inactivo' }}
+                                    <span class="badge {{ $servicio->is_active ? 'bg-success' : 'bg-secondary' }}">
+                                        {{ $servicio->is_active ? 'Activo' : 'Inactivo' }}
                                     </span>
                                 </td>
                                 @if($this->user && $this->user->role === 'admin')
@@ -159,7 +163,7 @@
                     <button type="button" class="btn-close" wire:click="hideForm" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
-                    @livewire('servicio-form', ['servicioId' => $editingServicio], key($editingServicio))
+                    @livewire('product-form', ['productId' => $editingServicio], key($editingServicio))
                 </div>
             </div>
         </div>

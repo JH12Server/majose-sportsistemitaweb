@@ -46,24 +46,38 @@
                     <th>Vendedor</th>
                     <th>Total</th>
                     <th>Estado</th>
+                    <th>Método de Pago</th>
                     <th class="text-center"><i class="bi bi-gear"></i></th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($ventas as $venta)
+                @php
+                    $customerNotes = json_decode($venta->customer_notes, true) ?? [];
+                    $paymentMethod = $customerNotes['payment_method'] ?? null;
+                    // traducir método de pago
+                    $pmSpanish = 'N/A';
+                    if ($paymentMethod) {
+                        switch ($paymentMethod) {
+                            case 'cash': $pmSpanish = 'Efectivo'; break;
+                            case 'credit_card': $pmSpanish = 'Tarjeta'; break;
+                            case 'paypal': $pmSpanish = 'PayPal'; break;
+                            default: $pmSpanish = ucfirst(str_replace('_', ' ', $paymentMethod)); break;
+                        }
+                    }
+                @endphp
                 <tr>
                     <td>#{{ $venta->id }}</td>
                     <td>{{ $venta->user->name ?? '-' }}</td>
                     <td>{{ $venta->created_at->format('d/m/Y H:i') }}</td>
                     <td>{{ $venta->user->name ?? '-' }}</td>
-                    <td>${{ number_format($venta->monto, 2) }}</td>
+                    <td>${{ number_format($venta->total_amount ?? $venta->total ?? 0, 2) }}</td>
                     <td>
-                        @if($venta->estado === 'activo' || $venta->estado === 'completado')
-                            <span class="badge bg-success">Activo</span>
-                        @else
-                            <span class="badge bg-secondary">Inactivo</span>
-                        @endif
+                        <span class="badge bg-{{ $venta->status === 'delivered' ? 'success' : ($venta->status === 'pending' ? 'warning' : ($venta->status === 'cancelled' ? 'danger' : 'info')) }}">
+                            {{ $venta->status_label ?? ucfirst(str_replace('_', ' ', $venta->status ?? $venta->status ?? '')) }}
+                        </span>
                     </td>
+                    <td>{{ $pmSpanish }}</td>
                     <td class="text-center">
                         <a href="{{ route('ventas.edit', $venta) }}" class="btn btn-sm btn-primary" title="Editar"><i class="bi bi-pencil"></i></a>
                         <form action="{{ route('ventas.destroy', $venta) }}" method="POST" class="d-inline">
@@ -75,7 +89,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="text-center">No data available in table</td>
+                    <td colspan="8" class="text-center">No data available in table</td>
                 </tr>
                 @endforelse
             </tbody>

@@ -4,7 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Servicio;
+use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 
 class ServiciosIndex extends Component
@@ -37,20 +37,23 @@ class ServiciosIndex extends Component
 
     public function getServiciosProperty()
     {
-        $query = Servicio::query();
+        $query = Product::query()->where('is_active', '>=', 0);
 
         if ($this->search) {
-            $query->where('nombre', 'like', '%' . $this->search . '%')
-                  ->orWhere('descripcion', 'like', '%' . $this->search . '%')
-                  ->orWhere('categoria', 'like', '%' . $this->search . '%');
+            $query->where(function($q) {
+                $q->where('name', 'like', '%' . $this->search . '%')
+                  ->orWhere('description', 'like', '%' . $this->search . '%')
+                  ->orWhere('category', 'like', '%' . $this->search . '%');
+            });
         }
 
         if ($this->filterCategoria) {
-            $query->where('categoria', $this->filterCategoria);
+            $query->where('category', $this->filterCategoria);
         }
 
         if ($this->filterEstado !== '') {
-            $query->where('estado', $this->filterEstado);
+            // filterEstado expected as '1' or '0'
+            $query->where('is_active', $this->filterEstado);
         }
 
         return $query->paginate(10);
@@ -58,7 +61,7 @@ class ServiciosIndex extends Component
 
     public function getCategoriasProperty()
     {
-        return Servicio::distinct()->pluck('categoria')->filter();
+        return Product::distinct()->pluck('category')->filter();
     }
 
     public function getUserProperty()
@@ -81,10 +84,10 @@ class ServiciosIndex extends Component
     public function eliminarServicio($servicioId)
     {
         if ($this->user && $this->user->role === 'admin') {
-            $servicio = Servicio::find($servicioId);
-            if ($servicio) {
-                $servicio->delete();
-                session()->flash('status', 'Servicio eliminado correctamente.');
+            $producto = Product::find($servicioId);
+            if ($producto) {
+                $producto->delete();
+                session()->flash('status', 'Producto eliminado correctamente.');
             }
         }
     }

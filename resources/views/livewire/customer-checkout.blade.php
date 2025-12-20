@@ -87,35 +87,36 @@
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Departamento *</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Provincia *</label>
                                 <select 
                                     wire:model="billingInfo.state" 
                                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('billingInfo.state') border-red-500 @enderror"
                                 >
                                     <option value="">Seleccionar</option>
-                                    <option value="Antioquia">Antioquia</option>
-                                    <option value="Atlántico">Atlántico</option>
-                                    <option value="Bogotá">Bogotá D.C.</option>
+                                    <option value="Azuay">Azuay</option>
                                     <option value="Bolívar">Bolívar</option>
-                                    <option value="Boyacá">Boyacá</option>
-                                    <option value="Caldas">Caldas</option>
-                                    <option value="Caquetá">Caquetá</option>
-                                    <option value="Cauca">Cauca</option>
-                                    <option value="Cesar">Cesar</option>
-                                    <option value="Córdoba">Córdoba</option>
-                                    <option value="Cundinamarca">Cundinamarca</option>
-                                    <option value="Huila">Huila</option>
-                                    <option value="La Guajira">La Guajira</option>
-                                    <option value="Magdalena">Magdalena</option>
-                                    <option value="Meta">Meta</option>
-                                    <option value="Nariño">Nariño</option>
-                                    <option value="Norte de Santander">Norte de Santander</option>
-                                    <option value="Quindío">Quindío</option>
-                                    <option value="Risaralda">Risaralda</option>
-                                    <option value="Santander">Santander</option>
-                                    <option value="Sucre">Sucre</option>
-                                    <option value="Tolima">Tolima</option>
-                                    <option value="Valle del Cauca">Valle del Cauca</option>
+                                    <option value="Cañar">Cañar</option>
+                                    <option value="Carchi">Carchi</option>
+                                    <option value="Chimborazo">Chimborazo</option>
+                                    <option value="Cotopaxi">Cotopaxi</option>
+                                    <option value="El Oro">El Oro</option>
+                                    <option value="Esmeraldas">Esmeraldas</option>
+                                    <option value="Galápagos">Galápagos</option>
+                                    <option value="Guayas">Guayas</option>
+                                    <option value="Imbabura">Imbabura</option>
+                                    <option value="Loja">Loja</option>
+                                    <option value="Los Ríos">Los Ríos</option>
+                                    <option value="Manabí">Manabí</option>
+                                    <option value="Morona Santiago">Morona Santiago</option>
+                                    <option value="Napo">Napo</option>
+                                    <option value="Orellana">Orellana</option>
+                                    <option value="Pastaza">Pastaza</option>
+                                    <option value="Pichincha">Pichincha</option>
+                                    <option value="Santa Elena">Santa Elena</option>
+                                    <option value="Santo Domingo">Santo Domingo</option>
+                                    <option value="Sucumbíos">Sucumbíos</option>
+                                    <option value="Tungurahua">Tungurahua</option>
+                                    <option value="Zamora Chinchipe">Zamora Chinchipe</option>
                                 </select>
                                 @error('billingInfo.state') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                             </div>
@@ -188,35 +189,36 @@
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Departamento *</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Provincia *</label>
                                 <select 
                                     wire:model="shippingInfo.state" 
                                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('shippingInfo.state') border-red-500 @enderror"
                                 >
                                     <option value="">Seleccionar</option>
-                                    <option value="Antioquia">Antioquia</option>
-                                    <option value="Atlántico">Atlántico</option>
-                                    <option value="Bogotá">Bogotá D.C.</option>
+                                    <option value="Azuay">Azuay</option>
                                     <option value="Bolívar">Bolívar</option>
-                                    <option value="Boyacá">Boyacá</option>
-                                    <option value="Caldas">Caldas</option>
-                                    <option value="Caquetá">Caquetá</option>
-                                    <option value="Cauca">Cauca</option>
-                                    <option value="Cesar">Cesar</option>
-                                    <option value="Córdoba">Córdoba</option>
-                                    <option value="Cundinamarca">Cundinamarca</option>
-                                    <option value="Huila">Huila</option>
-                                    <option value="La Guajira">La Guajira</option>
-                                    <option value="Magdalena">Magdalena</option>
-                                    <option value="Meta">Meta</option>
-                                    <option value="Nariño">Nariño</option>
-                                    <option value="Norte de Santander">Norte de Santander</option>
-                                    <option value="Quindío">Quindío</option>
-                                    <option value="Risaralda">Risaralda</option>
-                                    <option value="Santander">Santander</option>
-                                    <option value="Sucre">Sucre</option>
-                                    <option value="Tolima">Tolima</option>
-                                    <option value="Valle del Cauca">Valle del Cauca</option>
+                                    <option value="Cañar">Cañar</option>
+                                    <option value="Carchi">Carchi</option>
+                                    <option value="Chimborazo">Chimborazo</option>
+                                    <option value="Cotopaxi">Cotopaxi</option>
+                                    <option value="El Oro">El Oro</option>
+                                    <option value="Esmeraldas">Esmeraldas</option>
+                                    <option value="Galápagos">Galápagos</option>
+                                    <option value="Guayas">Guayas</option>
+                                    <option value="Imbabura">Imbabura</option>
+                                    <option value="Loja">Loja</option>
+                                    <option value="Los Ríos">Los Ríos</option>
+                                    <option value="Manabí">Manabí</option>
+                                    <option value="Morona Santiago">Morona Santiago</option>
+                                    <option value="Napo">Napo</option>
+                                    <option value="Orellana">Orellana</option>
+                                    <option value="Pastaza">Pastaza</option>
+                                    <option value="Pichincha">Pichincha</option>
+                                    <option value="Santa Elena">Santa Elena</option>
+                                    <option value="Santo Domingo">Santo Domingo</option>
+                                    <option value="Sucumbíos">Sucumbíos</option>
+                                    <option value="Tungurahua">Tungurahua</option>
+                                    <option value="Zamora Chinchipe">Zamora Chinchipe</option>
                                 </select>
                                 @error('shippingInfo.state') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                             </div>
@@ -238,43 +240,6 @@
                         <h2 class="text-lg font-semibold text-gray-900 mb-6">Método de Pago</h2>
                         
                         <div class="space-y-4">
-                            <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 {{ $paymentMethod === 'card' ? 'border-blue-500 bg-blue-50' : '' }}">
-                                <input 
-                                    wire:model="paymentMethod" 
-                                    type="radio" 
-                                    value="card" 
-                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                >
-                                <div class="ml-3">
-                                    <div class="flex items-center">
-                                        <svg class="h-6 w-6 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
-                                        </svg>
-                                        <span class="font-medium text-gray-900">Tarjeta de Crédito/Débito</span>
-                                    </div>
-                                    <p class="text-sm text-gray-500">Pago seguro con Stripe</p>
-                                </div>
-                            </label>
-                            
-                            <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 {{ $paymentMethod === 'paypal' ? 'border-blue-500 bg-blue-50' : '' }}">
-                                <input 
-                                    wire:model="paymentMethod" 
-                                    type="radio" 
-                                    value="paypal" 
-                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                    href{{ url('/paypal/pay') }}
-                                >
-                                <div class="ml-3">
-                                    <div class="flex items-center">
-                                        <svg class="h-6 w-6 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.51-.541c-1.01-1.15-2.57-1.81-5.19-1.81H8.458c-.524 0-.968.382-1.05.9L5.288 19.9h4.588c.524 0 .968-.382 1.05-.9l1.12-7.106h2.19c4.298 0 7.664-1.747 8.647-6.797.03-.149.054-.294.077-.437z"/>
-                                        </svg>
-                                        <span class="font-medium text-gray-900">PayPal</span>
-                                    </div>
-                                    <p class="text-sm text-gray-500">Pago rápido y seguro</p>
-                                </div>
-                            </label>
-
                             <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 {{ $paymentMethod === 'cash' ? 'border-blue-500 bg-blue-50' : '' }}">
                                 <input 
                                     wire:model="paymentMethod" 
@@ -289,56 +254,20 @@
                                         </svg>
                                         <span class="font-medium text-gray-900">Pago en Efectivo</span>
                                     </div>
-                                    <p class="text-sm text-gray-500">Paga al recibir tu pedido</p>
+                                    <p class="text-sm text-gray-500">Pago al momento de la entrega</p>
                                 </div>
                             </label>
                         </div>
 
-                        @if($paymentMethod === 'card')
-                            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                                <h3 class="text-sm font-medium text-gray-900 mb-3">Información de la Tarjeta</h3>
-                                <div class="space-y-3">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Número de tarjeta</label>
-                                        <input 
-                                            type="text" 
-                                            placeholder="1234 5678 9012 3456" 
-                                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        >
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de vencimiento</label>
-                                            <input 
-                                                type="text" 
-                                                placeholder="MM/AA" 
-                                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            >
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">CVV</label>
-                                            <input 
-                                                type="text" 
-                                                placeholder="123" 
-                                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            >
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre en la tarjeta</label>
-                                        <input 
-                                            type="text" 
-                                            placeholder="Juan Pérez" 
-                                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        >
-                                    </div>
-                                </div>
-                                <div class="mt-3 flex items-center">
-                                    <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        @if($paymentMethod === 'cash')
+                            <div class="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                                <div class="flex items-center">
+                                    <svg class="h-5 w-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                     </svg>
-                                    <span class="text-sm text-gray-600">Pago 100% seguro con encriptación SSL</span>
+                                    <span class="text-sm font-medium text-green-800">Paga al recibir tu pedido</span>
                                 </div>
+                                <p class="text-sm text-green-700 mt-2">El pago se realizará en efectivo cuando recibas tu pedido. Nuestro repartidor te informará sobre los detalles.</p>
                             </div>
                         @endif
                     </div>
@@ -428,85 +357,22 @@
                         </div>
 
                         <!-- Botón de pago -->
-                        @if($paymentMethod !== 'paypal')
-                            <button 
-                                type="submit"
-                                wire:loading.attr="disabled"
-                                class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <span wire:loading.remove wire:target="processPayment">
-                                    Proceder al Pago
-                                </span>
-                                <span wire:loading wire:target="processPayment" class="flex items-center justify-center">
-                                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Procesando...
-                                </span>
-                            </button>
-                        @else
-                            <div class="mt-4">
-                                @if(empty($paypalClientId))
-                                    <div class="p-3 mb-3 rounded border border-yellow-300 bg-yellow-50 text-yellow-800">
-                                        PayPal no está configurado. Por favor añade <code>PAYPAL_CLIENT_ID</code> y <code>PAYPAL_SECRET</code> en tu archivo <code>.env</code> (modo sandbox) y recarga la página.
-                                    </div>
-                                @endif
-                                <div id="paypal-buttons"></div>
-                            </div>
-                            <script>
-                                (function(){
-                                    const clientId = "{{ $paypalClientId ?? '' }}";
-                                    if (!clientId) {
-                                        console.warn('PayPal client id not configured');
-                                        return;
-                                    }
-                                    const script = document.createElement('script');
-                                    script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD`;
-                                    script.onload = () => {
-                                        const token = document.querySelector('meta[name=csrf-token]').getAttribute('content');
-
-                                        paypal.Buttons({
-                                            createOrder: function(data, actions) {
-                                                return fetch("{{ route('paypal.create') }}", {
-                                                    method: 'post',
-                                                    headers: {
-                                                        'Content-Type': 'application/json',
-                                                        'X-CSRF-TOKEN': token,
-                                                        'X-Requested-With': 'XMLHttpRequest'
-                                                    },
-                                                    body: JSON.stringify({})
-                                                }).then(function(res){ return res.json(); }).then(function(data){
-                                                    return data.id;
-                                                });
-                                            },
-                                            onApprove: function(data, actions) {
-                                                return fetch("{{ url('/paypal/capture-order') }}/" + data.orderID, {
-                                                    method: 'post',
-                                                    headers: {
-                                                        'Content-Type': 'application/json',
-                                                        'X-CSRF-TOKEN': token,
-                                                        'X-Requested-With': 'XMLHttpRequest'
-                                                    },
-                                                    body: JSON.stringify({})
-                                                }).then(function(res){ return res.json(); }).then(function(json){
-                                                    if (json.redirect) {
-                                                        window.location = json.redirect;
-                                                    } else {
-                                                        alert('Pago completado, pero ocurrió un error procesando el pedido en el servidor.');
-                                                    }
-                                                });
-                                            },
-                                            onError: function(err){
-                                                console.error('PayPal error', err);
-                                                alert('Error con PayPal: ' + (err && err.message ? err.message : '')); 
-                                            }
-                                        }).render('#paypal-buttons');
-                                    };
-                                    document.body.appendChild(script);
-                                })();
-                            </script>
-                        @endif
+                        <button 
+                            type="submit"
+                            wire:loading.attr="disabled"
+                            class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <span wire:loading.remove wire:target="processPayment">
+                                Proceder al Pago
+                            </span>
+                            <span wire:loading wire:target="processPayment" class="flex items-center justify-center">
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Procesando...
+                            </span>
+                        </button>
 
                         <!-- Información de seguridad -->
                         <div class="mt-4 pt-4 border-t">

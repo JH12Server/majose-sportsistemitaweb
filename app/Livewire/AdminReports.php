@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleDetail;
@@ -53,11 +54,33 @@ class AdminReports extends Component
             ->orderBy('name')
             ->paginate($this->perPage);
 
-        // Aggregations for product sales (based on Servicio via SaleDetail)
-        $details = SaleDetail::with(['sale.user', 'product'])
-            ->when($this->startDate, fn($q)=>$q->whereHas('sale', fn($s)=>$s->whereDate('created_at','>=',$this->startDate)))
-            ->when($this->endDate, fn($q)=>$q->whereHas('sale', fn($s)=>$s->whereDate('created_at','<=',$this->endDate)))
+        // Aggregations for product sales - use same simple pattern as AdminVentas (works reliably)
+        $ventas = Sale::with(['user', 'details.product'])
+            ->when($this->startDate, function($query) {
+                $query->whereDate('created_at', '>=', $this->startDate);
+            })
+            ->when($this->endDate, function($query) {
+                $query->whereDate('created_at', '<=', $this->endDate);
+            })
+            ->orderBy('created_at', 'desc')
             ->get();
+
+        // Debugging: log counts
+        Log::info('AdminReports - Total sales found: ' . count($ventas));
+        foreach ($ventas as $sale) {
+            Log::info('  Sale #' . $sale->id . ' has ' . count($sale->details) . ' details');
+        }
+
+        // Extract all details from sales
+        $details = collect();
+        foreach ($ventas as $sale) {
+            foreach ($sale->details as $detail) {
+                $detail->sale = $sale;
+                $details->push($detail);
+            }
+        }
+
+        Log::info('AdminReports - Total details collected: ' . count($details));
 
         $groupedByProduct = $details->groupBy('product_id');
         $productSales = $groupedByProduct->map(function($rows, $productId){
@@ -88,28 +111,15 @@ class AdminReports extends Component
                 'cantidad' => (int)$d->quantity,
                 'precio' => (float)$d->price,
                 'total' => $subtotal,
-                'usuario' => optional(optional($d->sale)->user)->name ?? '-',
-                'fecha' => optional($d->sale)->created_at ? $d->sale->created_at->format('Y-m-d H:i:s') : '-',
-                'estado' => optional($d->sale)->status ?? '-',
+                'usuario' => $d->sale && $d->sale->user ? $d->sale->user->name : '-',
+                'fecha' => $d->sale ? $d->sale->created_at->format('Y-m-d H:i:s') : '-',
+                'estado' => $d->sale ? $d->sale->status : '-',
             ];
         })->values();
-
-        // Charts: ventas por usuario (cliente)
-        $salesQuery = Sale::with('user')
-            ->when($this->startDate, fn($q)=>$q->whereDate('created_at','>=',$this->startDate))
-            ->when($this->endDate, fn($q)=>$q->whereDate('created_at','<=',$this->endDate));
-
-        $byUser = $salesQuery->get()->groupBy(fn($s)=> optional($s->user)->name ?? 'Sin usuario');
-        $chartUsersLabels = $byUser->keys()->values();
-        $chartUsersCounts = $byUser->map->count()->values();
-        $chartUsersTotals = $byUser->map(fn($g)=> (float) $g->sum('total'))->values();
 
         return view('livewire.admin-reports', [
             'summary' => $summary,
             'products' => $products,
-            'chartUsersLabels' => $chartUsersLabels,
-            'chartUsersCounts' => $chartUsersCounts,
-            'chartUsersTotals' => $chartUsersTotals,
             'productSales' => $productSales,
             'soldDetails' => $soldDetails,
         ]);

@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual del Sistema - MajoseSport</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            scroll-behavior: smooth;
+        }
+        .gradient-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-feature {
+            transition: all 0.3s ease;
+        }
+        .card-feature:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .section-title {
+            position: relative;
+            padding-bottom: 1rem;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+        .code-block {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            border-left: 4px solid #667eea;
+        }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .feature-item {
+            background: #f3f4f6;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid #667eea;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Header -->
+    <div class="gradient-header text-white sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <h1 class="text-4xl font-bold mb-2">📚 Manual del Sistema MajoseSport</h1>
+            <p class="text-lg text-gray-100">Guía completa de funcionalidades para Administradores y Clientes</p>
+        </div>
+    </div>
+
+    <!-- Tabla de contenidos -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="bg-white rounded-lg shadow-md p-8 mb-12">
+            <h2 class="text-2xl font-bold mb-6 text-gray-900">Tabla de Contenidos</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h3 class="font-bold text-lg text-purple-600 mb-4">📊 Funcionalidades Admin</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#admin-dashboard" class="text-blue-600 hover:underline">• Dashboard Administrativo</a></li>
+                        <li><a href="#admin-gestion-servicios" class="text-blue-600 hover:underline">• Gestión de Servicios/Productos</a></li>
+                        <li><a href="#admin-ventas" class="text-blue-600 hover:underline">• Reporte de Ventas</a></li>
+                        <li><a href="#admin-caja" class="text-blue-600 hover:underline">• Control de Caja</a></li>
+                        <li><a href="#admin-gastos" class="text-blue-600 hover:underline">• Registro de Gastos</a></li>
+                        <li><a href="#admin-usuarios" class="text-blue-600 hover:underline">• Gestión de Usuarios</a></li>
+                        <li><a href="#admin-billboard" class="text-blue-600 hover:underline">• Gestor de Cartelera</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-blue-600 mb-4">👥 Funcionalidades Cliente</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#customer-catalog" class="text-blue-600 hover:underline">• Catálogo de Productos</a></li>
+                        <li><a href="#customer-cart" class="text-blue-600 hover:underline">• Carrito de Compras</a></li>
+                        <li><a href="#customer-checkout" class="text-blue-600 hover:underline">• Proceso de Checkout</a></li>
+                        <li><a href="#customer-orders" class="text-blue-600 hover:underline">• Mis Pedidos</a></li>
+                        <li><a href="#customer-profile" class="text-blue-600 hover:underline">• Perfil y Configuración</a></li>
+                        <li><a href="#customer-notifications" class="text-blue-600 hover:underline">• Centro de Notificaciones</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: ADMIN -->
+        <section class="mb-16">
+            <h2 class="text-4xl font-bold mb-12 section-title">🔐 Funcionalidades del Administrador</h2>
+
+            <!-- Dashboard Admin -->
+            <div id="admin-dashboard" class="bg-white rounded-lg shadow-md p-8 mb-8 card-feature">
+                <div class="flex items-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-2xl mr-6">📊</div>
+                    <h3 class="text-2xl font-bold text-gray-900">Dashboard Administrativo</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Panel principal con vista general de las métricas importantes del sistema.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📈 Resumen de Ventas</h4>
+                        <p class="text-sm text-gray-700">Visualización de ventas totales, cantidad de órdenes y ingresos del período.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">👥 Estadísticas de Clientes</h4>
+                        <p class="text-sm text-gray-700">Total de clientes registrados, clientes activos y nuevas suscripciones.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📦 Órdenes Pendientes</h4>
+                        <p class="text-sm text-gray-700">Listado de órdenes por procesar, clasificadas por estado y prioridad.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">💰 Flujo Financiero</h4>
+                        <p class="text-sm text-gray-700">Balance diario, ingresos por método de pago y proyecciones.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">⏰ Últimas Actividades</h4>
+                        <p class="text-sm text-gray-700">Feed en tiempo real de las acciones recientes en el sistema.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🎯 Indicadores Clave</h4>
+                        <p class="text-sm text-gray-700">Datos comparativos con períodos anteriores y tendencias.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gestión de Servicios/Productos -->
+            <div id="admin-gestion-servicios" class="bg-white rounded-lg shadow-md p-8 mb-8 card-feature">
+                <div class="flex items-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white text-2xl mr-6">📦</div>
+                    <h3 class="text-2xl font-bold text-gray-900">Gestión de Servicios/Productos</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Administración completa del catálogo de productos disponibles.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">➕ Crear Producto</h4>
+                        <p class="text-sm text-gray-700">Agregar nuevos productos con nombre, descripción, precio, categoría e imagen principal.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">✏️ Editar Producto</h4>
+                        <p class="text-sm text-gray-700">Modificar información existente de cualquier producto en el catálogo.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🗑️ Eliminar Producto</h4>
+                        <p class="text-sm text-gray-700">Remover productos del catálogo con confirmación de seguridad.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🔍 Búsqueda y Filtros</h4>
+                        <p class="text-sm text-gray-700">Filtrar por categoría, estado (activo/inactivo) y rango de precios.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📊 Estado de Inventario</h4>
+                        <p class="text-sm text-gray-700">Visualizar disponibilidad y actividad de cada producto.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🖼️ Gestión de Imágenes</h4>
+                        <p class="text-sm text-gray-700">Subir, cambiar o eliminar imágenes de productos con vista previa.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reporte de Ventas -->
+            <div id="admin-ventas" class="bg-white rounded-lg shadow-md p-8 mb-8 card-feature">
+                <div class="flex items-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center text-white text-2xl mr-6">📈</div>
+                    <h3 class="text-2xl font-bold text-gray-900">Reporte de Ventas</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Análisis detallado de todas las transacciones y ventas del sistema.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📅 Filtro por Fechas</h4>
+                        <p class="text-sm text-gray-700">Seleccionar rango de fechas personalizado para análisis.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">💵 Ingresos Totales</h4>
+                        <p class="text-sm text-gray-700">Suma de todos los ingresos en el período seleccionado.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🛒 Cantidad de Órdenes</h4>
+                        <p class="text-sm text-gray-700">Total de órdenes procesadas y clasificación por estado.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🏆 Productos Más Vendidos</h4>
+                        <p class="text-sm text-gray-700">Rankings de los productos con mayor cantidad de ventas.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📊 Gráficos Interactivos</h4>
+                        <p class="text-sm text-gray-700">Visualización de datos con gráficos de barras, líneas y pie charts.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">💳 Métodos de Pago</h4>
+                        <p class="text-sm text-gray-700">Desglose de ventas por método (PayPal, efectivo, etc).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control de Caja -->
+            <div id="admin-caja" class="bg-white rounded-lg shadow-md p-8 mb-8 card-feature">
+                <div class="flex items-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center text-white text-2xl mr-6">💰</div>
+                    <h3 class="text-2xl font-bold text-gray-900">Control de Caja</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Gestión integral del movimiento de efectivo en caja.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📊 Resumen Diario</h4>
+                        <p class="text-sm text-gray-700">Balance de apertura, ingresos, egresos y cierre de caja por día.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">➕ Registrar Ingreso</h4>
+                        <p class="text-sm text-gray-700">Agregar movimientos de entrada con descripción y monto.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">➖ Registrar Egreso</h4>
+                        <p class="text-sm text-gray-700">Registrar gastos con categorización y comprobante.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🔐 Cierre de Caja</h4>
+                        <p class="text-sm text-gray-700">Generar y confirmar el cierre de caja con reportes.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📈 Historial</h4>
+                        <p class="text-sm text-gray-700">Visualizar todos los movimientos de caja con filtros.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📋 Reportes</h4>
+                        <p class="text-sm text-gray-700">Exportar resúmenes de caja en diferentes formatos.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registro de Gastos -->
+            <div id="admin-gastos" class="bg-white rounded-lg shadow-md p-8 mb-8 card-feature">
+                <div class="flex items-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex items-center justify-center text-white text-2xl mr-6">💸</div>
+                    <h3 class="text-2xl font-bold text-gray-900">Registro de Gastos</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Control detallado de todos los gastos operacionales.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🏷️ Categorías de Gasto</h4>
+                        <p class="text-sm text-gray-700">Clasificar gastos por tipo (salarios, materiales, servicios, etc).</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">➕ Nuevo Gasto</h4>
+                        <p class="text-sm text-gray-700">Registrar gasto con descripción, monto, categoría y fecha.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">✏️ Editar Gasto</h4>
+                        <p class="text-sm text-gray-700">Modificar información de gastos registrados.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🗑️ Eliminar Gasto</h4>
+                        <p class="text-sm text-gray-700">Remover gastos con auditoría de cambios.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📊 Análisis de Gastos</h4>
+                        <p class="text-sm text-gray-700">Visualizar gastos por categoría y tendencias de gasto.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🔍 Filtros Avanzados</h4>
+                        <p class="text-sm text-gray-700">Buscar por período, categoría, monto y descripción.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gestión de Usuarios -->
+            <div id="admin-usuarios" class="bg-white rounded-lg shadow-md p-8 mb-8 card-feature">
+                <div class="flex items-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center text-white text-2xl mr-6">👥</div>
+                    <h3 class="text-2xl font-bold text-gray-900">Gestión de Usuarios</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Administración de cuentas de usuarios con control de roles y permisos.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">👤 Listar Usuarios</h4>
+                        <p class="text-sm text-gray-700">Ver tabla con todos los usuarios, roles y estado de cuenta.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">➕ Crear Usuario</h4>
+                        <p class="text-sm text-gray-700">Registrar nuevo usuario con email, nombre, rol y contraseña.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">✏️ Editar Perfil</h4>
+                        <p class="text-sm text-gray-700">Modificar datos de usuario, rol y permisos asignados.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🔒 Control de Roles</h4>
+                        <p class="text-sm text-gray-700">Asignar roles (Admin, Worker, Customer) y gestionar permisos.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🚫 Deshabilitar Cuenta</h4>
+                        <p class="text-sm text-gray-700">Activar o desactivar acceso de usuarios según sea necesario.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📊 Actividad de Usuario</h4>
+                        <p class="text-sm text-gray-700">Monitorear últimas acciones y fecha de último acceso.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gestor de Cartelera -->
+            <div id="admin-billboard" class="bg-white rounded-lg shadow-md p-8 mb-8 card-feature">
+                <div class="flex items-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg flex items-center justify-center text-white text-2xl mr-6">📢</div>
+                    <h3 class="text-2xl font-bold text-gray-900">Gestor de Cartelera</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Administración de anuncios y promociones en la plataforma.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📰 Crear Anuncio</h4>
+                        <p class="text-sm text-gray-700">Agregar nuevo anuncio con título, descripción e imagen.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📅 Programar Publicación</h4>
+                        <p class="text-sm text-gray-700">Establecer fechas de inicio y fin para anuncios.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🖼️ Subir Imágenes</h4>
+                        <p class="text-sm text-gray-700">Upload de imágenes con vista previa y validación de tamaño.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">✏️ Editar Anuncio</h4>
+                        <p class="text-sm text-gray-700">Modificar contenido de anuncios publicados.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🗑️ Eliminar</h4>
+                        <p class="text-sm text-gray-700">Remover anuncios de la plataforma.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">👁️ Visibilidad</h4>
+                        <p class="text-sm text-gray-700">Control de qué anuncios están activos y visibles.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: CUSTOMER -->
+        <section class="mb-16">
+            <h2 class="text-4xl font-bold mb-12 section-title">🛍️ Funcionalidades del Cliente</h2>
+
+            <!-- Catálogo de Productos -->
+            <div id="customer-catalog" class="bg-white rounded-lg shadow-md p-8 mb-8 card-feature">
+                <div class="flex items-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white text-2xl mr-6">🛒</div>
+                    <h3 class="text-2xl font-bold text-gray-900">Catálogo de Productos</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Exploración y visualización completa del catálogo de productos disponibles.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📋 Vista de Grid</h4>
+                        <p class="text-sm text-gray-700">Visualización en grilla de todos los productos con imágenes.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🔍 Búsqueda</h4>
+                        <p class="text-sm text-gray-700">Buscar productos por nombre o descripción en tiempo real.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🏷️ Filtrar por Categoría</h4>
+                        <p class="text-sm text-gray-700">Agrupar productos por categoría para facilitar búsqueda.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">💵 Filtrar por Precio</h4>
+                        <p class="text-sm text-gray-700">Seleccionar rango de precios deseado.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">⭐ Ordenar Resultados</h4>
+                        <p class="text-sm text-gray-700">Ordenar por precio, popularidad o novedad.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📸 Detalles del Producto</h4>
+                        <p class="text-sm text-gray-700">Ver imágenes, descripción, precio y stock disponible.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carrito de Compras -->
+            <div id="customer-cart" class="bg-white rounded-lg shadow-md p-8 mb-8 card-feature">
+                <div class="flex items-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center text-white text-2xl mr-6">🛒</div>
+                    <h3 class="text-2xl font-bold text-gray-900">Carrito de Compras</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Gestión del carrito con opciones de personalización y control.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">➕ Agregar Producto</h4>
+                        <p class="text-sm text-gray-700">Seleccionar cantidad y personalización antes de agregar.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📝 Personalizar</h4>
+                        <p class="text-sm text-gray-700">Personalizar texto, color, tamaño según disponibilidad.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🔢 Ajustar Cantidad</h4>
+                        <p class="text-sm text-gray-700">Aumentar o disminuir cantidad de artículos en carrito.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🗑️ Eliminar Producto</h4>
+                        <p class="text-sm text-gray-700">Remover items del carrito.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">💰 Resumen de Precio</h4>
+                        <p class="text-sm text-gray-700">Ver subtotal, impuestos y total con desglose.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📦 Vaciar Carrito</h4>
+                        <p class="text-sm text-gray-700">Limpiar todos los artículos del carrito.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Proceso de Checkout -->
+            <div id="customer-checkout" class="bg-white rounded-lg shadow-md p-8 mb-8 card-feature">
+                <div class="flex items-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center text-white text-2xl mr-6">💳</div>
+                    <h3 class="text-2xl font-bold text-gray-900">Proceso de Checkout</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Finalización segura de compra con múltiples opciones de pago.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📍 Dirección de Entrega</h4>
+                        <p class="text-sm text-gray-700">Ingresar o seleccionar dirección de envío.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📝 Notas de Pedido</h4>
+                        <p class="text-sm text-gray-700">Agregar instrucciones especiales para la orden.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">💳 PayPal</h4>
+                        <p class="text-sm text-gray-700">Pago seguro mediante integración con PayPal.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">💰 Pago en Efectivo</h4>
+                        <p class="text-sm text-gray-700">Opción de pago contra entrega.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📄 Resumen Final</h4>
+                        <p class="text-sm text-gray-700">Revisar detalles de la orden antes de confirmar.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">✅ Confirmación</h4>
+                        <p class="text-sm text-gray-700">Confirmación de compra con número de orden.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mis Pedidos -->
+            <div id="customer-orders" class="bg-white rounded-lg shadow-md p-8 mb-8 card-feature">
+                <div class="flex items-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-2xl mr-6">📦</div>
+                    <h3 class="text-2xl font-bold text-gray-900">Mis Pedidos</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Historial completo y seguimiento de órdenes realizadas.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📊 Listar Pedidos</h4>
+                        <p class="text-sm text-gray-700">Ver todas las órdenes con estado, fecha y monto.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🔍 Búsqueda</h4>
+                        <p class="text-sm text-gray-700">Buscar por número de pedido o fecha.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🏷️ Filtrar por Estado</h4>
+                        <p class="text-sm text-gray-700">Filtrar órdenes por estado (pendiente, completado, etc).</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📈 Ordenar Resultados</h4>
+                        <p class="text-sm text-gray-700">Ordenar por fecha, estado o monto.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">👁️ Ver Detalles</h4>
+                        <p class="text-sm text-gray-700">Expandir para ver productos, notas y seguimiento.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🔄 Repedir</h4>
+                        <p class="text-sm text-gray-700">Crear nuevo pedido con los mismos productos.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Perfil y Configuración -->
+            <div id="customer-profile" class="bg-white rounded-lg shadow-md p-8 mb-8 card-feature">
+                <div class="flex items-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-lg flex items-center justify-center text-white text-2xl mr-6">👤</div>
+                    <h3 class="text-2xl font-bold text-gray-900">Perfil y Configuración</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Gestión de información personal y preferencias de cuenta.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">👥 Datos Personales</h4>
+                        <p class="text-sm text-gray-700">Ver y editar nombre, email, teléfono.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📍 Direcciones</h4>
+                        <p class="text-sm text-gray-700">Agregar, editar o eliminar direcciones de envío.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🔒 Cambiar Contraseña</h4>
+                        <p class="text-sm text-gray-700">Actualizar contraseña de forma segura.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🔔 Preferencias de Notificación</h4>
+                        <p class="text-sm text-gray-700">Configurar alertas de órdenes y promociones.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📸 Foto de Perfil</h4>
+                        <p class="text-sm text-gray-700">Subir y cambiar imagen de perfil.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🚪 Cerrar Sesión</h4>
+                        <p class="text-sm text-gray-700">Salir de la cuenta de forma segura.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Centro de Notificaciones -->
+            <div id="customer-notifications" class="bg-white rounded-lg shadow-md p-8 mb-8 card-feature">
+                <div class="flex items-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg flex items-center justify-center text-white text-2xl mr-6">🔔</div>
+                    <h3 class="text-2xl font-bold text-gray-900">Centro de Notificaciones</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Gestión centralizada de alertas y notificaciones del sistema.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📬 Bandeja de Entrada</h4>
+                        <p class="text-sm text-gray-700">Ver todas las notificaciones recibidas.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">✅ Marcar como Leído</h4>
+                        <p class="text-sm text-gray-700">Marcar notificaciones individuales como leídas.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🗑️ Archivar</h4>
+                        <p class="text-sm text-gray-700">Guardar notificaciones importantes en archivo.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🔔 Alertas de Pedido</h4>
+                        <p class="text-sm text-gray-700">Notificaciones sobre cambios de estado de órdenes.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">📢 Promociones</h4>
+                        <p class="text-sm text-gray-700">Ofertas especiales y nuevos productos disponibles.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="font-bold text-gray-900 mb-2">🔧 Preferencias</h4>
+                        <p class="text-sm text-gray-700">Controlar qué notificaciones deseas recibir.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer con información adicional -->
+        <section class="bg-white rounded-lg shadow-md p-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-900">ℹ️ Información General</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="font-bold text-lg text-purple-600 mb-4">🌐 Acceso al Sistema</h3>
+                    <p class="text-sm text-gray-700 mb-3">
+                        <strong>Admin:</strong> Acceso con credenciales de administrador para gestionar todo el sistema.
+                    </p>
+                    <p class="text-sm text-gray-700">
+                        <strong>Cliente:</strong> Acceso con credenciales de cliente para comprar y rastrear pedidos.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-blue-600 mb-4">🔐 Seguridad</h3>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Todas las transacciones están cifradas y protegidas con HTTPS.
+                    </p>
+                    <p class="text-sm text-gray-700">
+                        Las contraseñas se almacenan de forma segura con hashing.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-green-600 mb-4">📞 Soporte</h3>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Para reportar problemas o solicitar ayuda, contacta al equipo de soporte.
+                    </p>
+                    <p class="text-sm text-gray-700">
+                        Respuesta en menos de 24 horas garantizada.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="gradient-header text-white py-8 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="mb-2">© 2025 MajoseSport. Manual del Sistema</p>
+            <p class="text-sm text-gray-100">Versión 1.0 - Última actualización: Diciembre 2025</p>
+        </div>
+    </footer>
+</body>
+</html>

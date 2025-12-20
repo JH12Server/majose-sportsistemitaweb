@@ -11,28 +11,33 @@ class VentaController extends Controller
 {
     public function index(Request $request)
     {
+        // Mostrar órdenes pagadas por el cliente en la vista de Ventas
         $fecha_inicio = $request->input('fecha_inicio', now()->startOfMonth()->format('Y-m-d'));
         $fecha_fin = $request->input('fecha_fin', now()->format('Y-m-d'));
-        $query = Sale::with(['user', 'details.product'])
+
+        // Usamos el modelo Order y filtramos por status = 'paid'
+        $query = \App\Models\Order::with(['user', 'items.product'])
             ->whereDate('created_at', '>=', $fecha_inicio)
-            ->whereDate('created_at', '<=', $fecha_fin);
+            ->whereDate('created_at', '<=', $fecha_fin)
+            ->where('status', 'paid');
+
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function($q) use ($search) {
-                $q->where('id', 'like', "%$search%")
+                $q->where('order_number', 'like', "%$search%")
                   ->orWhereHas('user', function($q2) use ($search) {
                       $q2->where('name', 'like', "%$search%")
-                         ->orWhere('email', 'like', "%$search%") ;
+                         ->orWhere('email', 'like', "%$search%");
                   })
-                  ->orWhere('total', 'like', "%$search%")
-                  ->orWhere('status', 'like', "%$search%")
-                  ->orWhereHas('details.product', function($q3) use ($search) {
-                      $q3->where('nombre', 'like', "%$search%") ;
+                  ->orWhere('total_amount', 'like', "%$search%")
+                  ->orWhereHas('items.product', function($q3) use ($search) {
+                      $q3->where('name', 'like', "%$search%");
                   });
             });
         }
+
         $ventas = $query->orderByDesc('created_at')->paginate(10)->appends($request->all());
-        $monto_total = $query->sum('total');
+        $monto_total = $query->sum('total_amount');
         return view('admin.ventas.index', compact('ventas', 'fecha_inicio', 'fecha_fin', 'monto_total'));
     }
 

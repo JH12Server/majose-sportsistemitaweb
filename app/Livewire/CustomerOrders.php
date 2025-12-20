@@ -57,6 +57,10 @@ class CustomerOrders extends Component
         }
 
         $order->update(['status' => 'cancelled']);
+        
+        // Notificar al cliente sobre la cancelación
+        $order->notifyStatusChanged('cancelled');
+        
         $this->dispatch('show-success', 'Pedido cancelado correctamente');
     }
 
@@ -71,7 +75,12 @@ class CustomerOrders extends Component
         }
 
         if ($this->status) {
-            $query->where('status', $this->status);
+            if ($this->status === 'paid') {
+                $paidStatuses = ['paid', 'pagado', 'delivered', 'entregado', 'completed', 'completado'];
+                $query->whereIn('status', $paidStatuses);
+            } else {
+                $query->where('status', $this->status);
+            }
         }
 
         // Aplicar ordenamiento
@@ -80,6 +89,7 @@ class CustomerOrders extends Component
         $orders = $query->paginate(10);
 
         $statuses = [
+            'paid' => 'Pagado',
             'pending' => 'Pendiente',
             'review' => 'En Revisión',
             'production' => 'En Producción',

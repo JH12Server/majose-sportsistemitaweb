@@ -70,6 +70,7 @@ class Order extends Model
             'shipped' => 'Enviado',
             'delivered' => 'Entregado',
             'cancelled' => 'Cancelado',
+            'paid' => 'Pagado',
             default => 'Desconocido'
         };
     }
@@ -83,5 +84,105 @@ class Order extends Model
             'urgent' => 'Urgente',
             default => 'Normal'
         };
+    }
+
+    /**
+     * Crear una notificación para el cliente
+     */
+    public function createNotification(string $type, string $title, string $message, array $data = []): Notification
+    {
+        return Notification::create([
+            'user_id' => $this->user_id,
+            'order_id' => $this->id,
+            'type' => $type,
+            'title' => $title,
+            'message' => $message,
+            'data' => $data,
+            'is_read' => false,
+        ]);
+    }
+
+    /**
+     * Notificar que el pedido ha sido creado
+     */
+    public function notifyOrderCreated(): void
+    {
+        $notification = $this->createNotification(
+            type: 'order_created',
+            title: 'Pedido Creado',
+            message: "Tu pedido #{$this->order_number} ha sido creado exitosamente.",
+            data: [
+                'order_number' => $this->order_number,
+                'total_amount' => $this->total_amount,
+                'status' => $this->status,
+            ]
+        );
+
+        // Broadcast real-time event
+        try {
+            event(new \App\Events\OrderCreated($this, $notification));
+        } catch (\Throwable $e) {
+            // Don't break flow if broadcasting not configured
+            \Illuminate\Support\Facades\Log::debug('Broadcast OrderCreated failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Notificar que el pedido ha sido pagado
+     */
+    public function notifyOrderPaid(): void
+    {
+        $notification = $this->createNotification(
+            type: 'order_paid',
+            title: 'Pago Recibido',
+            message: "El pago de tu pedido #{$this->order_number} ha sido recibido y confirmado.",
+            data: [
+                'order_number' => $this->order_number,
+                'total_amount' => $this->total_amount,
+                'status' => $this->status,
+            ]
+        );
+
+        // Broadcast real-time event
+        try {
+            event(new \App\Events\OrderPaid($this, $notification));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::debug('Broadcast OrderPaid failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Notificar cambio de estado del pedido
+     */
+    public function notifyStatusChanged(string $newStatus): void
+    {
+        $statusLabel = $this->getStatusLabelAttribute();
+        $messages = [
+            'review' => "Tu pedido #{$this->order_number} está siendo revisado por nuestro equipo.",
+            'production' => "Tu pedido #{$this->order_number} ha iniciado producción.",
+            'ready' => "Tu pedido #{$this->order_number} está listo para entrega.",
+            'shipped' => "Tu pedido #{$this->order_number} ha sido enviado.",
+            'delivered' => "¡Tu pedido #{$this->order_number} ha sido entregado!",
+            'cancelled' => "Tu pedido #{$this->order_number} ha sido cancelado.",
+        ];
+
+        $notification = $this->createNotification(
+            type: 'order_status_changed',
+            title: "Pedido: {$statusLabel}",
+            message: $messages[$newStatus] ?? "El estado de tu pedido #{$this->order_number} ha cambiado a: {$statusLabel}",
+            data: [
+                'order_number' => $this->order_number,
+                'old_status' => $this->status,
+                'new_status' => $newStatus,
+                'status_label' => $statusLabel,
+            ]
+        );
+
+        // Broadcast real-time event
+        try {
+            event(new \App\Events\OrderStatusChanged($this, $notification, $newStatus));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::debug('Broadcast OrderStatusChanged failed: ' . $e->getMessage());
+        }
     }
 }

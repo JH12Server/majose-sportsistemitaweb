@@ -7,10 +7,14 @@
             <span class="fw-bold text-danger d-none d-md-inline">Panel de Administración</span>
         </div>
         <div class="d-flex align-items-center gap-3 ms-auto">
-            <a href="#" class="text-dark position-relative" title="Notificaciones">
-                <i class="bi bi-bell" style="font-size: 1.4rem;"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
-            </a>
+            @if(Auth::check() && Auth::user()->isAdmin())
+                <livewire:notification-center />
+            @else
+                <a href="#" class="text-dark position-relative" title="Notificaciones">
+                    <i class="bi bi-bell" style="font-size: 1.4rem;"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+                </a>
+            @endif
             <a href="#" class="text-dark" title="Mensajes"><i class="bi bi-envelope" style="font-size: 1.4rem;"></i></a>
             <a href="#" class="text-dark" title="Idioma"><i class="bi bi-translate" style="font-size: 1.4rem;"></i></a>
             <div class="dropdown">

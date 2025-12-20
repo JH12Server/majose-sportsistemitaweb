@@ -15,7 +15,12 @@
         <div class="col-md-4">
             <div class="card shadow-sm border-0">
                 <div class="card-body text-center">
-                    <img src="{{ $avatar_url }}" alt="Avatar" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #e53935;">
+                    @if($avatar)
+                        <img src="{{ $avatar->temporaryUrl() }}" alt="Preview" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #ffc107;">
+                        <small class="text-warning d-block mb-2"><i class="bi bi-info-circle me-1"></i>Preview de la nueva imagen</small>
+                    @else
+                        <img src="{{ $avatar_url }}" alt="Avatar" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #e53935;">
+                    @endif
                     
                     <h5 class="fw-bold mt-3">{{ Auth::user()->name }}</h5>
                     <p class="text-muted small">{{ Auth::user()->email }}</p>
@@ -23,18 +28,35 @@
                     <!-- Upload Avatar Form -->
                     <div class="mt-4">
                         <form wire:submit.prevent="uploadAvatar">
-                            <input type="file" wire:model="avatar" accept="image/*" class="form-control form-control-sm mb-2">
-                            <small class="text-muted d-block mb-2">Máximo 2MB</small>
-                            <button type="submit" class="btn btn-sm btn-danger w-100" wire:loading.attr="disabled">
-                                <span wire:loading.remove wire:target="uploadAvatar">
-                                    <i class="bi bi-cloud-arrow-up"></i> Cambiar Avatar
-                                </span>
-                                <span wire:loading wire:target="uploadAvatar">
-                                    <i class="spinner-border spinner-border-sm me-2"></i> Subiendo...
-                                </span>
-                            </button>
+                            <label class="form-label fw-semibold small">Selecciona una imagen</label>
+                            <input type="file" wire:model="avatar" accept="image/*" class="form-control form-control-sm mb-2" @if(!$avatar) id="avatarInput" @endif>
+                            <small class="text-muted d-block mb-2">Máximo 2MB (JPEG, PNG, JPG, GIF)</small>
+                            @if($avatar)
+                                <small class="text-success d-block mb-2"><i class="bi bi-check-circle me-1"></i>Imagen seleccionada</small>
+                            @endif
+                            @error('avatar')
+                                <small class="text-danger d-block mb-2"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</small>
+                            @enderror
+                            @if($avatar)
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-sm btn-danger flex-grow-1" wire:loading.attr="disabled">
+                                        <span wire:loading.remove wire:target="uploadAvatar">
+                                            <i class="bi bi-cloud-arrow-up"></i> Guardar Avatar
+                                        </span>
+                                        <span wire:loading wire:target="uploadAvatar">
+                                            <i class="spinner-border spinner-border-sm me-2"></i> Subiendo...
+                                        </span>
+                                    </button>
+                                    <button type="button" wire:click="clearAvatar" class="btn btn-sm btn-secondary">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            @else
+                                <button type="button" class="btn btn-sm btn-outline-danger w-100" onclick="document.getElementById('avatarInput').click()">
+                                    <i class="bi bi-cloud-arrow-up"></i> Seleccionar Imagen
+                                </button>
+                            @endif
                         </form>
-                        @error('avatar') <small class="text-danger d-block mt-2">{{ $message }}</small> @enderror
                     </div>
                 </div>
             </div>
@@ -57,8 +79,10 @@
                         <form wire:submit.prevent="updateProfile">
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Nombre</label>
-                                <input type="text" wire:model.defer="name" class="form-control" placeholder="Tu nombre">
-                                @error('name') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
+                                <input type="text" wire:model.defer="name" class="form-control @error('name') is-invalid @enderror" placeholder="Tu nombre">
+                                @error('name')
+                                    <div class="invalid-feedback" style="display: block;"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="mb-3">
@@ -103,20 +127,26 @@
                         <form wire:submit.prevent="changePassword">
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Contraseña Actual</label>
-                                <input type="password" wire:model.defer="current_password" class="form-control" placeholder="Tu contraseña actual">
-                                @error('current_password') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
+                                <input type="password" wire:model.defer="current_password" class="form-control @error('current_password') is-invalid @enderror" placeholder="Tu contraseña actual">
+                                @error('current_password')
+                                    <div class="invalid-feedback" style="display: block;"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Nueva Contraseña</label>
-                                <input type="password" wire:model.defer="new_password" class="form-control" placeholder="Nueva contraseña (mín. 8 caracteres)">
-                                @error('new_password') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
+                                <input type="password" wire:model.defer="new_password" class="form-control @error('new_password') is-invalid @enderror" placeholder="Nueva contraseña (mín. 8 caracteres)">
+                                @error('new_password')
+                                    <div class="invalid-feedback" style="display: block;"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Confirmar Contraseña</label>
-                                <input type="password" wire:model.defer="new_password_confirmation" class="form-control" placeholder="Confirma la nueva contraseña">
-                                @error('new_password_confirmation') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
+                                <input type="password" wire:model.defer="new_password_confirmation" class="form-control @error('new_password_confirmation') is-invalid @enderror" placeholder="Confirma la nueva contraseña">
+                                @error('new_password_confirmation')
+                                    <div class="invalid-feedback" style="display: block;"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="d-flex gap-2">

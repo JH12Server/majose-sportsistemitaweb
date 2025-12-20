@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -34,10 +35,20 @@ class LoginController extends Controller
             $request->session()->regenerate();
 
             $user = Auth::user();
+            
+            // Log para debug
+            Log::info('Usuario autenticado', [
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+                'user_role' => $user->role,
+                'isCustomer' => $user->isCustomer(),
+            ]);
 
             // Redirigir según el rol específico
             if ($user->isCustomer()) {
-                return redirect()->intended(route('customer.dashboard'));
+                // Forzar redirección al dashboard de cliente tras login
+                Log::info('Redirigiendo a customer.dashboard');
+                return redirect()->route('customer.dashboard');
             }
 
             if ($user->isAdmin()) {
@@ -52,8 +63,8 @@ class LoginController extends Controller
                 return redirect()->intended(route('worker.dashboard'));
             }
 
-            // Fallback genérico
-            return redirect()->intended('/dashboard');
+            // Fallback genérico - no debería llegar aquí
+            return redirect('/');
         }
 
         return back()->withErrors([

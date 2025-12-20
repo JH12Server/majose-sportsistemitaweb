@@ -26,6 +26,7 @@ class User extends Authenticatable
         'address',
         'is_active',
         'permissions',
+        'google_id',
     ];
 
     /**
