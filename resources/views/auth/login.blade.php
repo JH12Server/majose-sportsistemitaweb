@@ -39,9 +39,6 @@
             </div>
             <button type="submit" class="btn btn-danger w-100 mb-2">Iniciar Sesión</button>
         </form>
-        <div class="text-center mt-3">
-            <a href="{{ route('register') }}" class="text-decoration-none">¿No tienes cuenta? <span class="fw-semibold" style="color: var(--primary-color)">Regístrate</span></a>
-        </div>
     </div>
 </div>
 
